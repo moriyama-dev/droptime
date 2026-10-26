@@ -122,4 +122,8 @@ php bin/capture-source.php --swimmer-pages "Doe, Jane"</pre>
 <nav class="footer-nav">
     <a class="footer-nav__link" href="<?= $view->url('admin.merges') ?>"><?= $t('admin.merges_link') ?></a>
     <a class="footer-nav__link" href="<?= $view->url('home') ?>"><?= $t('admin.to_parent') ?></a>
+    <form method="post" action="<?= $view->url('logout') ?>">
+        <?= DropTime\Http\Csrf::field() ?>
+        <button type="submit" class="button button--quiet"><?= $t('common.logout') ?></button>
+    </form>
 </nav>

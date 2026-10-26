@@ -37,6 +37,9 @@ return [
     'auth.proceed' => '進む',
     'auth.show' => '合言葉を表示',
     'auth.hide' => '合言葉を隠す',
+    'auth.role' => '入る画面',
+    'auth.role_parent' => '保護者・選手',
+    'auth.role_admin' => '管理者',
 
     // エラーページ
     'err.notfound_title' => 'ページが見つかりません',

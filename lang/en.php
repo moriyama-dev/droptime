@@ -35,6 +35,9 @@ return [
     'auth.proceed' => 'Continue',
     'auth.show' => 'Show passphrase',
     'auth.hide' => 'Hide passphrase',
+    'auth.role' => 'Sign in as',
+    'auth.role_parent' => 'Parent / swimmer',
+    'auth.role_admin' => 'Admin',
 
     'err.notfound_title' => 'Page not found',
     'err.notfound_body' => 'Please check the address.',

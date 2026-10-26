@@ -35,6 +35,9 @@ return [
     'auth.proceed' => '繼續',
     'auth.show' => '顯示通行碼',
     'auth.hide' => '隱藏通行碼',
+    'auth.role' => '登入身份',
+    'auth.role_parent' => '家長／泳手',
+    'auth.role_admin' => '管理員',
 
     'err.notfound_title' => '搵唔到呢一頁',
     'err.notfound_body' => '請檢查網址。',

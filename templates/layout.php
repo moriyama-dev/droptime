@@ -54,8 +54,8 @@ $languages = ['en' => 'EN', 'ja' => '日本語', 'yue' => '廣東話'];
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="<?= $e($brand['primary'] ?? '#0b4f6c') ?>">
 <title><?= $e($appName) ?></title>
-<link rel="stylesheet" href="<?= $e($basePath) ?>/assets/app.css">
-<script src="<?= $e($basePath) ?>/assets/app.js"></script>
+<link rel="stylesheet" href="<?= $e($basePath) ?>/assets/app.css?v=<?= $e((string) @filemtime(APP_ROOT . '/public/assets/app.css')) ?>">
+<script src="<?= $e($basePath) ?>/assets/app.js?v=<?= $e((string) @filemtime(APP_ROOT . '/public/assets/app.js')) ?>"></script>
 <link rel="manifest" href="<?= $e($basePath) ?>/manifest.json">
 <link rel="apple-touch-icon" href="<?= $e($basePath) ?>/assets/icons/icon-180.png">
 <link rel="icon" href="<?= $e($basePath) ?>/assets/icons/icon-192.png" type="image/png">

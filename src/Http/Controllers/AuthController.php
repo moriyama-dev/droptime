@@ -14,10 +14,15 @@ use DropTime\Support\Lang;
 
 /**
  * ログイン。クラブ共通の合言葉ひとつだけで、ユーザー名は無い。
- * 管理画面だけは別の合言葉をもう一段要求する（最初の欄に管理用の合言葉を入れた場合は、そのまま管理画面へ通す）。
+ * ログイン画面で「保護者・選手」か「管理者」かを選ぶ。管理者は管理用の合言葉で入り、そのまま管理画面へ移る。
+ * 保護者・選手として入るときは、クラブの合言葉か管理用の合言葉のどちらでもよい（管理者が保護者の画面だけで入れるように）。
+ * 保護者として入った後に管理画面のリンクから入る 2 段目（adminForm）も残す。
  */
 final class AuthController extends Controller
 {
+    public const ROLE_PARENT = 'parent';
+    public const ROLE_ADMIN = 'admin';
+
     public function form(Request $request): Response
     {
         if (Auth::isParent()) {
@@ -27,6 +32,7 @@ final class AuthController extends Controller
         return $this->view('auth/login', [
             'error' => null,
             'next' => self::safeNext($request->queryString('next')),
+            'role' => self::ROLE_PARENT,
         ]);
     }
 
@@ -35,6 +41,7 @@ final class AuthController extends Controller
         $throttle = $this->throttle();
         $ip = $request->ipBinary();
         $next = self::safeNext($request->postString('next'));
+        $role = $request->postString('role') === self::ROLE_ADMIN ? self::ROLE_ADMIN : self::ROLE_PARENT;
 
         $locked = $throttle->lockedSeconds($ip, LoginThrottle::SCOPE_PARENT);
 
@@ -42,22 +49,27 @@ final class AuthController extends Controller
             return $this->view('auth/login', [
                 'error' => $this->lockMessage($locked),
                 'next' => $next,
+                'role' => $role,
             ], 429);
         }
 
         $config = $this->context->config;
         $passphrase = $request->postString('passphrase');
 
-        // 管理用の合言葉をここに入れた人は、2 段目を飛ばして管理画面へ通す。
         $adminHash = $config->string('auth.admin_password_hash');
-        $isAdmin = $adminHash !== '' && Auth::verifyPassphrase($adminHash, $passphrase);
+        $adminMatches = $adminHash !== '' && Auth::verifyPassphrase($adminHash, $passphrase);
+        $isAdmin = $role === self::ROLE_ADMIN && $adminMatches;
+        $ok = $role === self::ROLE_ADMIN
+            ? $adminMatches
+            : $adminMatches || Auth::verifyPassphrase($config->string('auth.password_hash'), $passphrase);
 
-        if (!$isAdmin && !Auth::verifyPassphrase($config->string('auth.password_hash'), $passphrase)) {
+        if (!$ok) {
             $throttle->recordFailure($ip, LoginThrottle::SCOPE_PARENT);
 
             return $this->view('auth/login', [
                 'error' => Lang::t('auth.wrong'),
                 'next' => $next,
+                'role' => $role,
             ], 401);
         }
 
@@ -65,6 +77,7 @@ final class AuthController extends Controller
 
         // 固定化攻撃を避けるため、権限を与える前に ID を作り直す。
         session_regenerate_id(true);
+        Auth::forget(); // 前の権限を持ち越さない（管理者だった人が保護者として入り直すとき）
         Auth::grantParent();
 
         if ($isAdmin) {
