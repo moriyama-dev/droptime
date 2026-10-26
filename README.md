@@ -12,6 +12,20 @@
 セットアップ手順は [docs/SETUP.md](docs/SETUP.md)、
 本番へのデプロイは [docs/DEPLOY.md](docs/DEPLOY.md) を参照。
 
+## 名前はすべて架空（個人情報について）
+
+このリポジトリに出てくる選手の名前は、**すべて架空の名前に置き換え済み**です。実在の人物とは関係ありません。
+
+- テストデータ（[tests/fixtures/](tests/fixtures/)・`tests/cases/`）は実際の大会結果の書式から作りましたが、
+  選手名は同じ文字数の架空の名前（例: `Buza, Divenim`）に置き換えてあります。タイム・年齢・チームは書式の検証用にそのまま使っています
+- 説明書の例に出てくる `Doe, Jane` も見本の名前です
+- 実際の選手データ・出典の証拠・設定は git に入れず（`var/`・`config/config.php`）、運用中のサーバーだけにあります
+- コミットと push の前に [bin/privacy-check.php](bin/privacy-check.php) が実名を探し、見つけたら止めます（`.githooks/`）
+
+> **All swimmer names in this repository are fictitious.** Test fixtures were built from the format of real meet
+> results, but every name was replaced with a made-up one of the same length. Real data never enters git;
+> a pre-commit / pre-push check (`bin/privacy-check.php`) blocks real names.
+
 ## いまの状態
 
 - 認証（クラブ共通の合言葉 + 管理用の第 2 合言葉）、レート制限、検索避け
