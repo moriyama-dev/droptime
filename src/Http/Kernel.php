@@ -6,6 +6,7 @@ namespace DropTime\Http;
 
 use DropTime\Db\Database;
 use DropTime\Db\DbSessionHandler;
+use DropTime\Repository\FavoriteRepository;
 use DropTime\Support\Clock;
 use DropTime\Support\Config;
 use DropTime\Support\Lang;
@@ -114,6 +115,11 @@ final class Kernel
             throw HttpException::badRequest('CSRF トークンが一致しません。');
         }
 
+        // お気に入りの入れ物を、端末の目印からセッションへ戻す（ログアウト後・期限切れ後でも残るように）。
+        if (Auth::isParent()) {
+            ProfileSession::restore(new FavoriteRepository(Database::instance()));
+        }
+
         $view = new View(APP_ROOT . '/templates', $router);
         $view->share('appName', $config->string('app.name', 'DropTime'));
         $view->share('homeUrl', $config->string('app.home_url', 'https://droptime.takumi.ca/'));
@@ -219,6 +225,11 @@ final class Kernel
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
+
+        DeviceCookie::configure(
+            ($config->string('app.base_path', '') ?: '') . '/',
+            $config->bool('security.cookie_secure', true),
+        );
 
         session_start();
 

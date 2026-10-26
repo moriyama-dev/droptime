@@ -93,6 +93,9 @@ return [
     'fav.code_label' => 'Transfer code',
     'fav.claim_button' => 'Transfer',
     'fav.claim_note' => 'If this device already has favourites, they will be replaced by the ones from the entered code.',
+    'fav.forget_title' => 'Clear favourites on this device',
+    'fav.forget_note' => 'Favourites are saved on this device and stay after you log out. On a shared device, clear them here when you are done. Other devices linked with a transfer code keep their favourites.',
+    'fav.forget_button' => 'Clear favourites on this device',
 
     'sw.pb' => 'Personal bests',
     'sw.progress_link' => 'Scores & progression →',
@@ -269,6 +272,7 @@ return [
     'fl.swimmer_missing' => 'Swimmer not found.',
     'fl.fav_added' => 'Added %s to favourites.',
     'fl.fav_removed' => 'Removed from favourites.',
+    'fl.fav_forgotten' => 'Favourites on this device have been cleared.',
     'fl.code_wrong' => 'Code not found. Please check what you typed.',
     'fl.claimed' => 'Transferred. %d favourites are now available.',
     'fl.committed' => 'Committed: %d events, %d entries, %d results.',

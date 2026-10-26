@@ -83,6 +83,51 @@ final class FavoriteRepository
         return array_map(static fn (array $row): int => (int) $row['swimmer_id'], $rows);
     }
 
+    /** 端末の Cookie（の SHA-256）が指す入れ物。 */
+    public function profileForDevice(string $deviceHash): ?int
+    {
+        $id = $this->db->selectValue(
+            'SELECT profile_id FROM profile_devices WHERE device_hash = :device_hash',
+            ['device_hash' => $deviceHash]
+        );
+
+        return $id === null ? null : (int) $id;
+    }
+
+    /** 端末を入れ物に結び付ける。結び付け済みなら、指す先と最終アクセスを更新する。 */
+    public function linkDevice(string $deviceHash, int $profileId): void
+    {
+        $now = Clock::utcNow();
+
+        $this->db->execute(
+            'INSERT INTO profile_devices (device_hash, profile_id, created_at, last_seen_at)'
+            . ' VALUES (:device_hash, :profile_id, :created_at, :last_seen_at)'
+            . ' ON DUPLICATE KEY UPDATE profile_id = VALUES(profile_id), last_seen_at = VALUES(last_seen_at)',
+            ['device_hash' => $deviceHash, 'profile_id' => $profileId, 'created_at' => $now, 'last_seen_at' => $now]
+        );
+    }
+
+    /**
+     * 「この端末のお気に入りを消す」。端末の結び付けを外し、ほかに結び付いた端末が
+     * 無ければ入れ物ごと（お気に入りも）消す。引き継ぎコードで繋いだ別の端末があれば、
+     * そちらのお気に入りは残す。
+     */
+    public function forgetDevice(int $profileId, ?string $deviceHash): void
+    {
+        if ($deviceHash !== null) {
+            $this->db->execute('DELETE FROM profile_devices WHERE device_hash = :device_hash', ['device_hash' => $deviceHash]);
+        }
+
+        $others = $this->db->selectValue(
+            'SELECT COUNT(*) FROM profile_devices WHERE profile_id = :profile_id',
+            ['profile_id' => $profileId]
+        );
+
+        if ((int) $others === 0) {
+            $this->db->execute('DELETE FROM profiles WHERE id = :id', ['id' => $profileId]);
+        }
+    }
+
     public function add(int $profileId, int $swimmerId): void
     {
         $this->db->execute(

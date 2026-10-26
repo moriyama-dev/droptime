@@ -93,6 +93,9 @@ return [
     'fav.code_label' => '轉移碼',
     'fav.claim_button' => '轉移',
     'fav.claim_note' => '如果呢部裝置已經有最愛名單，轉移之後會換成輸入嗰個碼嘅名單。',
+    'fav.forget_title' => '清除呢部裝置嘅最愛',
+    'fav.forget_note' => '最愛會儲存喺呢部裝置，登出之後都會保留。如果係共用裝置，用完之後請喺度清除。用轉移碼連接咗嘅其他裝置，最愛唔會被清除。',
+    'fav.forget_button' => '清除呢部裝置嘅最愛',
 
     'sw.pb' => '個人最佳',
     'sw.progress_link' => '成績同進步 →',
@@ -269,6 +272,7 @@ return [
     'fl.swimmer_missing' => '搵唔到運動員。',
     'fl.fav_added' => '已將 %s 加入最愛。',
     'fl.fav_removed' => '已由最愛移除。',
+    'fl.fav_forgotten' => '已清除呢部裝置嘅最愛。',
     'fl.code_wrong' => '搵唔到呢個碼。請檢查輸入。',
     'fl.claimed' => '轉移完成。而家有 %d 個最愛。',
     'fl.committed' => '已入庫：%d 個項目、%d 個報名、%d 個成績。',

@@ -46,6 +46,7 @@ return [
     ['POST', '/favorites/remove', [FavoritesController::class, 'remove'], Access::PARENT, 'favorites.remove'],
     ['POST', '/favorites/code', [FavoritesController::class, 'issueCode'], Access::PARENT, 'favorites.code'],
     ['POST', '/favorites/claim', [FavoritesController::class, 'claim'], Access::PARENT, 'favorites.claim'],
+    ['POST', '/favorites/forget', [FavoritesController::class, 'forget'], Access::PARENT, 'favorites.forget'],
 
     // PWA。ログイン前でも読めるが、含まれるのはアプリ名だけ。
     ['GET', '/manifest.json', [PwaController::class, 'manifest'], Access::PUBLIC, 'manifest'],

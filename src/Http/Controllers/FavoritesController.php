@@ -128,11 +128,20 @@ final class FavoritesController extends Controller
         }
 
         $throttle->recordSuccess($ip, 'claim');
-        ProfileSession::bind($profileId);
+        ProfileSession::bind($profileId, $favorites);
         $favorites->touch($profileId);
 
         $count = count($favorites->favoriteIdsOf($profileId));
         Flash::success(Lang::t('fl.claimed', $count));
+
+        return $this->redirectToRoute('favorites');
+    }
+
+    /** 「この端末のお気に入りを消す」。共用の端末で、次に使う人へ残さないため。 */
+    public function forget(Request $request): Response
+    {
+        ProfileSession::forget($this->favorites());
+        Flash::success(Lang::t('fl.fav_forgotten'));
 
         return $this->redirectToRoute('favorites');
     }

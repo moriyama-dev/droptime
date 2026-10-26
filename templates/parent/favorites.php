@@ -120,4 +120,14 @@ $favoriteIds = array_flip(array_map(static fn (array $s): int => (int) $s['id'],
         </form>
         <p class="panel__note"><?= $t('fav.claim_note') ?></p>
     </div>
+    <?php if ($favoriteSwimmers !== []) : ?>
+        <div class="panel">
+            <h3 class="panel__title"><?= $t('fav.forget_title') ?></h3>
+            <p class="panel__note"><?= $t('fav.forget_note') ?></p>
+            <form method="post" action="<?= $view->url('favorites.forget') ?>">
+                <?= DropTime\Http\Csrf::field() ?>
+                <button type="submit" class="button button--danger"><?= $t('fav.forget_button') ?></button>
+            </form>
+        </div>
+    <?php endif; ?>
 </section>
