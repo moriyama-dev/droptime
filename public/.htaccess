@@ -1,0 +1,40 @@
+# DropTime — 公開ディレクトリ
+# ドキュメントルートを droptime/public 以外に置いた場合は、次行のコメントを外して
+# アプリ本体（public の親）の絶対パスを指定する。
+# SetEnv DROPTIME_ROOT /home/USER/droptime
+
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# 検索避け（HTML の meta と二重にかける）
+<IfModule mod_headers.c>
+    Header always set X-Robots-Tag "noindex, nofollow, noarchive, noimageindex"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "no-referrer"
+</IfModule>
+
+# 機微なファイルは Web から一切読ませない
+<FilesMatch "\.(db|sqlite|sqlite3|env|md|sql|log|ini|json\.dist|example\.php)$">
+    Require all denied
+</FilesMatch>
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# 静的ファイルのキャッシュ（HTML は都度取得させる）
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 7 days"
+    ExpiresByType application/javascript "access plus 7 days"
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType image/svg+xml "access plus 30 days"
+</IfModule>

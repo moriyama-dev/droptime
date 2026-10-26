@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# 公開リポジトリに個人名・個人情報を入れないための見張り（CLAUDE.md「公開リポジトリと個人情報」）。
+# 有効化: git config core.hooksPath .githooks
+exec php "$(git rev-parse --show-toplevel)/bin/privacy-check.php" --staged

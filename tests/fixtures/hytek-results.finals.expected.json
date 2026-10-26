@@ -1,0 +1,235 @@
+{
+    "parser": "hytek-results",
+    "meet": {
+        "name": "2026 June Performance Meet",
+        "host": "Toronto Pan Am Sports Centre",
+        "start_date": "2026-06-05",
+        "end_date": "2026-06-07",
+        "course": "LCM",
+        "venue": null
+    },
+    "counts": {
+        "events": 1,
+        "entries": 0,
+        "results": 5,
+        "splits": 20,
+        "swimmers": 5,
+        "unrecognized": 0,
+        "warnings": 0
+    },
+    "events": [
+        {
+            "number": "1",
+            "round": "final",
+            "gender": "F",
+            "age_group": "13-14",
+            "distance": 200,
+            "stroke": "FR",
+            "course": "LCM",
+            "is_relay": false,
+            "scheduled_time": null,
+            "sort_order": 15,
+            "entries": [],
+            "results": [
+                {
+                    "place": 1,
+                    "final_time_cs": 12876,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Gazotodoku",
+                        "first_name": "Buze",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "TSC",
+                        "team_name": null,
+                        "normalized_key": "gazotodoku buze"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 2920
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6113
+                        },
+                        {
+                            "distance": 150,
+                            "cumulative_time_cs": 9497
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 12876
+                        }
+                    ]
+                },
+                {
+                    "place": 2,
+                    "final_time_cs": 13405,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "COBRA",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Dosemebit",
+                        "first_name": "Kusa",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "COBRA",
+                        "team_name": null,
+                        "normalized_key": "dosemebit kusa"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 3073
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6441
+                        },
+                        {
+                            "distance": 150,
+                            "cumulative_time_cs": 9923
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 13405
+                        }
+                    ]
+                },
+                {
+                    "place": 3,
+                    "final_time_cs": 13622,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Georgiades",
+                        "first_name": "Ginger",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "georgiades ginger"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 3243
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6716
+                        },
+                        {
+                            "distance": 150,
+                            "cumulative_time_cs": 10213
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 13622
+                        }
+                    ]
+                },
+                {
+                    "place": 4,
+                    "final_time_cs": 13817,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TORCH",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lar",
+                        "first_name": "Tikosama",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "F",
+                        "team_code": "TORCH",
+                        "team_name": null,
+                        "normalized_key": "lar tikosama"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 3178
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6673
+                        },
+                        {
+                            "distance": 150,
+                            "cumulative_time_cs": 10250
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 13817
+                        }
+                    ]
+                },
+                {
+                    "place": 5,
+                    "final_time_cs": 13859,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Kakula",
+                        "first_name": "Rirub",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "kakula rirub"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 3190
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6743
+                        },
+                        {
+                            "distance": 150,
+                            "cumulative_time_cs": 10284
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 13859
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "unrecognized": [],
+    "unrecognized_overflow": 0,
+    "warnings": []
+}

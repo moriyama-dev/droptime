@@ -1,0 +1,180 @@
+{
+    "parser": "hytek-results",
+    "meet": {
+        "name": "RHAC Summer League 2025",
+        "host": "Richmond Hill Aquatic Club",
+        "start_date": "2025-07-18",
+        "end_date": "2025-07-20",
+        "course": "SCM",
+        "venue": null
+    },
+    "counts": {
+        "events": 1,
+        "entries": 4,
+        "results": 4,
+        "splits": 12,
+        "swimmers": 0,
+        "unrecognized": 0,
+        "warnings": 0
+    },
+    "events": [
+        {
+            "number": "21",
+            "round": "timed",
+            "gender": "X",
+            "age_group": "10 & Under",
+            "distance": 200,
+            "stroke": "FR",
+            "course": "SCM",
+            "is_relay": true,
+            "scheduled_time": null,
+            "sort_order": 215,
+            "entries": [
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 13589,
+                    "seed_is_ntime": false,
+                    "team_code": "RHAC",
+                    "relay_letter": "A",
+                    "swimmer": null
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 15256,
+                    "seed_is_ntime": false,
+                    "team_code": "RHAC",
+                    "relay_letter": "B",
+                    "swimmer": null
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 15211,
+                    "seed_is_ntime": false,
+                    "team_code": "TORCH",
+                    "relay_letter": "A",
+                    "swimmer": null
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 16031,
+                    "seed_is_ntime": false,
+                    "team_code": "TORCH",
+                    "relay_letter": "B",
+                    "swimmer": null
+                }
+            ],
+            "results": [
+                {
+                    "place": 1,
+                    "final_time_cs": 13644,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": 48,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "RHAC",
+                    "relay_letter": "A",
+                    "swimmer": null,
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 3526
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 7038
+                        },
+                        {
+                            "distance": 150,
+                            "cumulative_time_cs": 10683
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 13644
+                        }
+                    ]
+                },
+                {
+                    "place": 2,
+                    "final_time_cs": 14709,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": 42,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "RHAC",
+                    "relay_letter": "B",
+                    "swimmer": null,
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 3632
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 7047
+                        },
+                        {
+                            "distance": 150,
+                            "cumulative_time_cs": 10673
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 14709
+                        }
+                    ]
+                },
+                {
+                    "place": 3,
+                    "final_time_cs": 14984,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": 40,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TORCH",
+                    "relay_letter": "A",
+                    "swimmer": null,
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 3550
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 7344
+                        },
+                        {
+                            "distance": 150,
+                            "cumulative_time_cs": 11428
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 14984
+                        }
+                    ]
+                },
+                {
+                    "place": null,
+                    "final_time_cs": null,
+                    "status": "NS",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TORCH",
+                    "relay_letter": "B",
+                    "swimmer": null,
+                    "splits": []
+                }
+            ]
+        }
+    ],
+    "unrecognized": [],
+    "unrecognized_overflow": 0,
+    "warnings": []
+}

@@ -1,0 +1,13 @@
+/config/config.php
+/var/uploads/*
+/var/manual/*
+/var/logs/*
+/var/backups/*
+/var/evidence/*
+/var/fetch/*
+/var/privacy/*
+!/var/*/.gitignore
+!/var/*/.htaccess
+.DS_Store
+/REVISION
+/.claude/

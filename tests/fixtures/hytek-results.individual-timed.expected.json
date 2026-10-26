@@ -1,0 +1,601 @@
+{
+    "parser": "hytek-results",
+    "meet": {
+        "name": "2026 June Performance Meet",
+        "host": "Toronto Pan Am Sports Centre",
+        "start_date": "2026-06-05",
+        "end_date": "2026-06-07",
+        "course": "LCM",
+        "venue": null
+    },
+    "counts": {
+        "events": 1,
+        "entries": 14,
+        "results": 14,
+        "splits": 0,
+        "swimmers": 14,
+        "unrecognized": 0,
+        "warnings": 0
+    },
+    "events": [
+        {
+            "number": "47",
+            "round": "timed",
+            "gender": "F",
+            "age_group": "10 & Under",
+            "distance": 50,
+            "stroke": "FR",
+            "course": "LCM",
+            "is_relay": false,
+            "scheduled_time": null,
+            "sort_order": 475,
+            "entries": [
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3620,
+                    "seed_is_ntime": false,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Buza",
+                        "first_name": "Divenim",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "buza divenim"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3582,
+                    "seed_is_ntime": false,
+                    "team_code": "TORCH",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Nagani",
+                        "first_name": "Pivoz",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "TORCH",
+                        "team_name": null,
+                        "normalized_key": "nagani pivoz"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3650,
+                    "seed_is_ntime": false,
+                    "team_code": "TORCH",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Meli",
+                        "first_name": "Vifolirol",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "TORCH",
+                        "team_name": null,
+                        "normalized_key": "meli vifolirol"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3591,
+                    "seed_is_ntime": false,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Mom",
+                        "first_name": "Munafi",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "mom munafi"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3653,
+                    "seed_is_ntime": false,
+                    "team_code": "RHAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lasanit",
+                        "first_name": "Zigikuku",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "RHAC",
+                        "team_name": null,
+                        "normalized_key": "lasanit zigikuku"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3699,
+                    "seed_is_ntime": false,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Vifi",
+                        "first_name": "Titopone",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "vifi titopone"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3759,
+                    "seed_is_ntime": false,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Pimizes Rinago",
+                        "first_name": "Po",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "pimizes rinago po"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3939,
+                    "seed_is_ntime": false,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Fokun",
+                        "first_name": "Lesur",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "fokun lesur"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3807,
+                    "seed_is_ntime": false,
+                    "team_code": "WS",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Mege",
+                        "first_name": "Kifevim",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "WS",
+                        "team_name": null,
+                        "normalized_key": "mege kifevim"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 4014,
+                    "seed_is_ntime": false,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Renevomi",
+                        "first_name": "Gumo",
+                        "birth_year": null,
+                        "age": 9,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "renevomi gumo"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3753,
+                    "seed_is_ntime": false,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Rot",
+                        "first_name": "Puvi",
+                        "birth_year": null,
+                        "age": 9,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "rot puvi"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 4138,
+                    "seed_is_ntime": false,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Maruvapu",
+                        "first_name": "Vutid",
+                        "birth_year": null,
+                        "age": 9,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "maruvapu vutid"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 4271,
+                    "seed_is_ntime": false,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "No",
+                        "first_name": "Peforas",
+                        "birth_year": null,
+                        "age": 9,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "no peforas"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 4009,
+                    "seed_is_ntime": false,
+                    "team_code": "WS",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Dafovel",
+                        "first_name": "Tave",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "WS",
+                        "team_name": null,
+                        "normalized_key": "dafovel tave"
+                    }
+                }
+            ],
+            "results": [
+                {
+                    "place": 1,
+                    "final_time_cs": 3482,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Buza",
+                        "first_name": "Divenim",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "buza divenim"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 2,
+                    "final_time_cs": 3499,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TORCH",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Nagani",
+                        "first_name": "Pivoz",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "TORCH",
+                        "team_name": null,
+                        "normalized_key": "nagani pivoz"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 3,
+                    "final_time_cs": 3501,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TORCH",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Meli",
+                        "first_name": "Vifolirol",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "TORCH",
+                        "team_name": null,
+                        "normalized_key": "meli vifolirol"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 4,
+                    "final_time_cs": 3519,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Mom",
+                        "first_name": "Munafi",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "mom munafi"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 5,
+                    "final_time_cs": 3608,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "RHAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lasanit",
+                        "first_name": "Zigikuku",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "RHAC",
+                        "team_name": null,
+                        "normalized_key": "lasanit zigikuku"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 6,
+                    "final_time_cs": 3684,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Vifi",
+                        "first_name": "Titopone",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "vifi titopone"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 7,
+                    "final_time_cs": 3721,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Pimizes Rinago",
+                        "first_name": "Po",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "pimizes rinago po"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 8,
+                    "final_time_cs": 3722,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Fokun",
+                        "first_name": "Lesur",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "fokun lesur"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 9,
+                    "final_time_cs": 3856,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "WS",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Mege",
+                        "first_name": "Kifevim",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "WS",
+                        "team_name": null,
+                        "normalized_key": "mege kifevim"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 10,
+                    "final_time_cs": 3874,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Renevomi",
+                        "first_name": "Gumo",
+                        "birth_year": null,
+                        "age": 9,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "renevomi gumo"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 11,
+                    "final_time_cs": 3929,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Rot",
+                        "first_name": "Puvi",
+                        "birth_year": null,
+                        "age": 9,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "rot puvi"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 12,
+                    "final_time_cs": 3950,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Maruvapu",
+                        "first_name": "Vutid",
+                        "birth_year": null,
+                        "age": 9,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "maruvapu vutid"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 13,
+                    "final_time_cs": 3985,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "No",
+                        "first_name": "Peforas",
+                        "birth_year": null,
+                        "age": 9,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "no peforas"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": 14,
+                    "final_time_cs": 4054,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "WS",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Dafovel",
+                        "first_name": "Tave",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "WS",
+                        "team_name": null,
+                        "normalized_key": "dafovel tave"
+                    },
+                    "splits": []
+                }
+            ]
+        }
+    ],
+    "unrecognized": [],
+    "unrecognized_overflow": 0,
+    "warnings": []
+}

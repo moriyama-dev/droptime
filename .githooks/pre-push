@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# push する全コミット（差分・メッセージ・先端のツリー）に個人名・個人情報が無いかを確かめる。
+set -euo pipefail
+root="$(git rev-parse --show-toplevel)"
+zero=0000000000000000000000000000000000000000
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue   # ブランチの削除
+  if [ "$remote_sha" = "$zero" ]; then range="$local_sha"; else range="$remote_sha..$local_sha"; fi
+  php "$root/bin/privacy-check.php" --push "$range"
+done

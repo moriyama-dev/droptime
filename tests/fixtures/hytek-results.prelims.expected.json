@@ -1,0 +1,424 @@
+{
+    "parser": "hytek-results",
+    "meet": {
+        "name": "2026 June Performance Meet",
+        "host": "Toronto Pan Am Sports Centre",
+        "start_date": "2026-06-05",
+        "end_date": "2026-06-07",
+        "course": "LCM",
+        "venue": null
+    },
+    "counts": {
+        "events": 1,
+        "entries": 8,
+        "results": 8,
+        "splits": 14,
+        "swimmers": 8,
+        "unrecognized": 0,
+        "warnings": 0
+    },
+    "events": [
+        {
+            "number": "1",
+            "round": "prelim",
+            "gender": "F",
+            "age_group": "13-14",
+            "distance": 200,
+            "stroke": "FR",
+            "course": "LCM",
+            "is_relay": false,
+            "scheduled_time": null,
+            "sort_order": 10,
+            "entries": [
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 12891,
+                    "seed_is_ntime": false,
+                    "team_code": "TSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Gazotodoku",
+                        "first_name": "Buze",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "TSC",
+                        "team_name": null,
+                        "normalized_key": "gazotodoku buze"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 13624,
+                    "seed_is_ntime": false,
+                    "team_code": "COBRA",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Dosemebit",
+                        "first_name": "Kusa",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "COBRA",
+                        "team_name": null,
+                        "normalized_key": "dosemebit kusa"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 13439,
+                    "seed_is_ntime": false,
+                    "team_code": "OAK",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Wilson",
+                        "first_name": "Jaeden",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "OAK",
+                        "team_name": null,
+                        "normalized_key": "wilson jaeden"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 13733,
+                    "seed_is_ntime": false,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Georgiades",
+                        "first_name": "Ginger",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "georgiades ginger"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 13776,
+                    "seed_is_ntime": false,
+                    "team_code": "TORCH",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lar",
+                        "first_name": "Tikosama",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "F",
+                        "team_code": "TORCH",
+                        "team_name": null,
+                        "normalized_key": "lar tikosama"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 14213,
+                    "seed_is_ntime": false,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Kakula",
+                        "first_name": "Rirub",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "kakula rirub"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 14105,
+                    "seed_is_ntime": false,
+                    "team_code": "OAK",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lukebub",
+                        "first_name": "Vurere",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "F",
+                        "team_code": "OAK",
+                        "team_name": null,
+                        "normalized_key": "lukebub vurere"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 14280,
+                    "seed_is_ntime": false,
+                    "team_code": "NEW",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Balurut",
+                        "first_name": "Nezaz",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "F",
+                        "team_code": "NEW",
+                        "team_name": null,
+                        "normalized_key": "balurut nezaz"
+                    }
+                }
+            ],
+            "results": [
+                {
+                    "place": 1,
+                    "final_time_cs": 13088,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Gazotodoku",
+                        "first_name": "Buze",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "TSC",
+                        "team_name": null,
+                        "normalized_key": "gazotodoku buze"
+                    },
+                    "splits": [
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6298
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 13088
+                        }
+                    ]
+                },
+                {
+                    "place": 2,
+                    "final_time_cs": 13472,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "COBRA",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Dosemebit",
+                        "first_name": "Kusa",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "COBRA",
+                        "team_name": null,
+                        "normalized_key": "dosemebit kusa"
+                    },
+                    "splits": [
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6447
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 13472
+                        }
+                    ]
+                },
+                {
+                    "place": 3,
+                    "final_time_cs": 13875,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "OAK",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Wilson",
+                        "first_name": "Jaeden",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "OAK",
+                        "team_name": null,
+                        "normalized_key": "wilson jaeden"
+                    },
+                    "splits": [
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6699
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 13875
+                        }
+                    ]
+                },
+                {
+                    "place": 4,
+                    "final_time_cs": 13967,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Georgiades",
+                        "first_name": "Ginger",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "georgiades ginger"
+                    },
+                    "splits": [
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6810
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 13967
+                        }
+                    ]
+                },
+                {
+                    "place": 5,
+                    "final_time_cs": 13977,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TORCH",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lar",
+                        "first_name": "Tikosama",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "F",
+                        "team_code": "TORCH",
+                        "team_name": null,
+                        "normalized_key": "lar tikosama"
+                    },
+                    "splits": [
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6794
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 13977
+                        }
+                    ]
+                },
+                {
+                    "place": 6,
+                    "final_time_cs": 14086,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "NYAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Kakula",
+                        "first_name": "Rirub",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "F",
+                        "team_code": "NYAC",
+                        "team_name": null,
+                        "normalized_key": "kakula rirub"
+                    },
+                    "splits": [
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6767
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 14086
+                        }
+                    ]
+                },
+                {
+                    "place": 7,
+                    "final_time_cs": 14114,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "OAK",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lukebub",
+                        "first_name": "Vurere",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "F",
+                        "team_code": "OAK",
+                        "team_name": null,
+                        "normalized_key": "lukebub vurere"
+                    },
+                    "splits": [
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 6769
+                        },
+                        {
+                            "distance": 200,
+                            "cumulative_time_cs": 14114
+                        }
+                    ]
+                },
+                {
+                    "place": 8,
+                    "final_time_cs": 14127,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "NEW",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Balurut",
+                        "first_name": "Nezaz",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "F",
+                        "team_code": "NEW",
+                        "team_name": null,
+                        "normalized_key": "balurut nezaz"
+                    },
+                    "splits": []
+                }
+            ]
+        }
+    ],
+    "unrecognized": [],
+    "unrecognized_overflow": 0,
+    "warnings": []
+}

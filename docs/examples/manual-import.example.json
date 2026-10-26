@@ -1,0 +1,58 @@
+{
+  "_comment": "手入力取り込みの形式。実ファイルは var/manual/ に置く（git 管理外）。タイムは '44.10' や '1:38.20' の表記そのまま。course は SCM/LCM/SCY、stroke は FR/BK/BR/FL/IM/MED。",
+  "swimmers": [
+    {
+      "last_name": "Example",
+      "first_name": "Swimmer",
+      "birth_year": 2014,
+      "gender": "F",
+      "team_code": "ZORC",
+      "team_name": "Zorc"
+    }
+  ],
+  "meets": [
+    {
+      "name": "Example Invitational 2026",
+      "start_date": "2026-01-25",
+      "end_date": null,
+      "course": "SCM",
+      "venue": "Example Pool",
+      "events": [
+        {
+          "number": "12",
+          "round": "timed",
+          "gender": "F",
+          "age_group": "10 & Under",
+          "distance": 100,
+          "stroke": "FR",
+          "results": [
+            {
+              "last_name": "Example",
+              "first_name": "Swimmer",
+              "birth_year": 2014,
+              "gender": "F",
+              "team_code": "ZORC",
+              "team_name": "Zorc",
+              "time": "1:38.20",
+              "place": 2,
+              "heat": 3,
+              "lane": 4,
+              "splits": { "50": "47.10", "100": "1:38.20" }
+            }
+          ],
+          "entries": [
+            {
+              "last_name": "Example",
+              "first_name": "Swimmer",
+              "birth_year": 2014,
+              "team_code": "ZORC",
+              "heat": 3,
+              "lane": 4,
+              "seed": "1:41.55"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

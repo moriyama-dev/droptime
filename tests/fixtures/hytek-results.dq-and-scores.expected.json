@@ -1,0 +1,299 @@
+{
+    "parser": "hytek-results",
+    "meet": {
+        "name": "RHAC Summer League 2025",
+        "host": "Richmond Hill Aquatic Club",
+        "start_date": "2025-07-18",
+        "end_date": "2025-07-20",
+        "course": "SCM",
+        "venue": null
+    },
+    "counts": {
+        "events": 1,
+        "entries": 6,
+        "results": 6,
+        "splits": 4,
+        "swimmers": 6,
+        "unrecognized": 0,
+        "warnings": 0
+    },
+    "events": [
+        {
+            "number": "53",
+            "round": "timed",
+            "gender": "F",
+            "age_group": "10 & Under",
+            "distance": 100,
+            "stroke": "BR",
+            "course": "SCM",
+            "is_relay": false,
+            "scheduled_time": null,
+            "sort_order": 535,
+            "entries": [
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 9756,
+                    "seed_is_ntime": false,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Des",
+                        "first_name": "Fomud",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "des fomud"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 9379,
+                    "seed_is_ntime": false,
+                    "team_code": "RHAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Boril",
+                        "first_name": "Lesu",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "RHAC",
+                        "team_name": null,
+                        "normalized_key": "boril lesu"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 15000,
+                    "seed_is_ntime": false,
+                    "team_code": "TORCH",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Kol",
+                        "first_name": "Tibelo",
+                        "birth_year": null,
+                        "age": 9,
+                        "gender": "F",
+                        "team_code": "TORCH",
+                        "team_name": null,
+                        "normalized_key": "kol tibelo"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 15000,
+                    "seed_is_ntime": false,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Renevomi",
+                        "first_name": "Gumo",
+                        "birth_year": null,
+                        "age": 8,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "renevomi gumo"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 14636,
+                    "seed_is_ntime": false,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lidi",
+                        "first_name": "Vifolirol",
+                        "birth_year": null,
+                        "age": 7,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "lidi vifolirol"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 11754,
+                    "seed_is_ntime": false,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Guf",
+                        "first_name": "Got",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "guf got"
+                    }
+                }
+            ],
+            "results": [
+                {
+                    "place": 1,
+                    "final_time_cs": 9354,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": 24,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Des",
+                        "first_name": "Fomud",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "des fomud"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 4575
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 9354
+                        }
+                    ]
+                },
+                {
+                    "place": 2,
+                    "final_time_cs": 9361,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": 21,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "RHAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Boril",
+                        "first_name": "Lesu",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "RHAC",
+                        "team_name": null,
+                        "normalized_key": "boril lesu"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 4625
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 9361
+                        }
+                    ]
+                },
+                {
+                    "place": null,
+                    "final_time_cs": null,
+                    "status": "DQ",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TORCH",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Kol",
+                        "first_name": "Tibelo",
+                        "birth_year": null,
+                        "age": 9,
+                        "gender": "F",
+                        "team_code": "TORCH",
+                        "team_name": null,
+                        "normalized_key": "kol tibelo"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": null,
+                    "final_time_cs": null,
+                    "status": "DQ",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Renevomi",
+                        "first_name": "Gumo",
+                        "birth_year": null,
+                        "age": 8,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "renevomi gumo"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": null,
+                    "final_time_cs": null,
+                    "status": "NS",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lidi",
+                        "first_name": "Vifolirol",
+                        "birth_year": null,
+                        "age": 7,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "lidi vifolirol"
+                    },
+                    "splits": []
+                },
+                {
+                    "place": null,
+                    "final_time_cs": null,
+                    "status": "NS",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Guf",
+                        "first_name": "Got",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "guf got"
+                    },
+                    "splits": []
+                }
+            ]
+        }
+    ],
+    "unrecognized": [],
+    "unrecognized_overflow": 0,
+    "warnings": []
+}

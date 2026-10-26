@@ -1,0 +1,28 @@
+{
+    "parser": "null",
+    "meet": null,
+    "counts": {
+        "events": 0,
+        "entries": 0,
+        "results": 0,
+        "splits": 0,
+        "swimmers": 0,
+        "unrecognized": 2,
+        "warnings": 1
+    },
+    "events": [],
+    "unrecognized": [
+        {
+            "line": 1,
+            "text": "Event 1  Girls 8 & Under 50 LC Meter Freestyle"
+        },
+        {
+            "line": 2,
+            "text": "Lane 4   Some Kid          Team X"
+        }
+    ],
+    "unrecognized_overflow": 0,
+    "warnings": [
+        "この書式に対応するパーサーがまだありません。全行を未認識として記録しました。取り込んだ元ファイルは保存してあるので、パーサーを実装したあとで再処理できます。"
+    ]
+}

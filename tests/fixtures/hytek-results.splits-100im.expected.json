@@ -1,0 +1,326 @@
+{
+    "parser": "hytek-results",
+    "meet": {
+        "name": "2026 Central Region Division 2 Championships",
+        "host": "North York Aquatic Club",
+        "start_date": "2026-02-20",
+        "end_date": "2026-02-22",
+        "course": "SCM",
+        "venue": null
+    },
+    "counts": {
+        "events": 1,
+        "entries": 6,
+        "results": 6,
+        "splits": 10,
+        "swimmers": 6,
+        "unrecognized": 0,
+        "warnings": 0
+    },
+    "events": [
+        {
+            "number": "227",
+            "round": "timed",
+            "gender": "F",
+            "age_group": "10 & Under",
+            "distance": 100,
+            "stroke": "IM",
+            "course": "SCM",
+            "is_relay": false,
+            "scheduled_time": null,
+            "sort_order": 2275,
+            "entries": [
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 10002,
+                    "seed_is_ntime": false,
+                    "team_code": "TSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Besomet",
+                        "first_name": "Rofepu",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "TSC",
+                        "team_name": null,
+                        "normalized_key": "besomet rofepu"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 10347,
+                    "seed_is_ntime": false,
+                    "team_code": "VAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Remov",
+                        "first_name": "Zudob",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "VAC",
+                        "team_name": null,
+                        "normalized_key": "remov zudob"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 11397,
+                    "seed_is_ntime": false,
+                    "team_code": "WSSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lon",
+                        "first_name": "Dalof",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "WSSC",
+                        "team_name": null,
+                        "normalized_key": "lon dalof"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 10178,
+                    "seed_is_ntime": false,
+                    "team_code": "TSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Mizetavava",
+                        "first_name": "Mifiz",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "TSC",
+                        "team_name": null,
+                        "normalized_key": "mizetavava mifiz"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 10321,
+                    "seed_is_ntime": false,
+                    "team_code": "TSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "ZuGanoto",
+                        "first_name": "Gulu",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "TSC",
+                        "team_name": null,
+                        "normalized_key": "zuganoto gulu"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 10033,
+                    "seed_is_ntime": false,
+                    "team_code": "COBRA",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Tapilul",
+                        "first_name": "Rakope",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "COBRA",
+                        "team_name": null,
+                        "normalized_key": "tapilul rakope"
+                    }
+                }
+            ],
+            "results": [
+                {
+                    "place": 1,
+                    "final_time_cs": 8928,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Besomet",
+                        "first_name": "Rofepu",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "TSC",
+                        "team_name": null,
+                        "normalized_key": "besomet rofepu"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 4307
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 8928
+                        }
+                    ]
+                },
+                {
+                    "place": 2,
+                    "final_time_cs": 9002,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "VAC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Remov",
+                        "first_name": "Zudob",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "VAC",
+                        "team_name": null,
+                        "normalized_key": "remov zudob"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 4245
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 9002
+                        }
+                    ]
+                },
+                {
+                    "place": 3,
+                    "final_time_cs": 9108,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "WSSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Lon",
+                        "first_name": "Dalof",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "WSSC",
+                        "team_name": null,
+                        "normalized_key": "lon dalof"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 4361
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 9108
+                        }
+                    ]
+                },
+                {
+                    "place": 4,
+                    "final_time_cs": 9165,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Mizetavava",
+                        "first_name": "Mifiz",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "TSC",
+                        "team_name": null,
+                        "normalized_key": "mizetavava mifiz"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 4178
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 9165
+                        }
+                    ]
+                },
+                {
+                    "place": 5,
+                    "final_time_cs": 9276,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "TSC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "ZuGanoto",
+                        "first_name": "Gulu",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "TSC",
+                        "team_name": null,
+                        "normalized_key": "zuganoto gulu"
+                    },
+                    "splits": [
+                        {
+                            "distance": 50,
+                            "cumulative_time_cs": 4448
+                        },
+                        {
+                            "distance": 100,
+                            "cumulative_time_cs": 9276
+                        }
+                    ]
+                },
+                {
+                    "place": 6,
+                    "final_time_cs": 9339,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "COBRA",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Tapilul",
+                        "first_name": "Rakope",
+                        "birth_year": null,
+                        "age": 10,
+                        "gender": "F",
+                        "team_code": "COBRA",
+                        "team_name": null,
+                        "normalized_key": "tapilul rakope"
+                    },
+                    "splits": []
+                }
+            ]
+        }
+    ],
+    "unrecognized": [],
+    "unrecognized_overflow": 0,
+    "warnings": []
+}
