@@ -1,5 +1,18 @@
 # DropTime
 
+**In English:** a small web app for the parents of one swim club. It pulls meet results, then shows each swimmer's latest race next to the previous one, progress per event, and where they rank among kids the same age. Not a commercial product.
+
+- Plain PHP 8.2 and MySQL 8. No framework, no dependencies, no build step
+- Parser for Hy-Tek MEET MANAGER result pages (individual, relay, prelims/finals, splits, DQ/NS), checked against 3 real meets (about 17,000 lines) and guarded by 6 fixture tests
+- One admin button fetches new meets from the live results site and only re-reads the ones that changed
+- Saves proof of where each record came from (screenshot, raw HTML, SHA-256 hash chain) so the data can always be traced back to a public page
+- Strict CSP, charts drawn as SVG, toggles built with CSS `:has()` and no JavaScript
+- All swimmer names in this repo are made up. A pre-commit hook blocks real names
+
+The rest of this README is in Japanese.
+
+---
+
 競泳大会の情報を保護者向けに表示するための小さな Web アプリ。
 ひとつの水泳クラブの保護者だけが使う前提で、商用化はしない。
 
