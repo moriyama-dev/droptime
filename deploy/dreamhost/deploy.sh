@@ -79,7 +79,7 @@ if [ -n "$DATA" ]; then
   php bin/transfer-data.php export "$TMP/data.json.gz" >/dev/null
   scp -q "$TMP/data.json.gz" "$DH_SSH:$DH_DIR/var/backups/transfer.json.gz"
   FLAG=""; [ "$DATA" = replace ] && FLAG="--replace"
-  ssh "$DH_SSH" "cd $DH_DIR && $DH_PHP bin/transfer-data.php import var/backups/transfer.json.gz $FLAG && rm var/backups/transfer.json.gz"
+  ssh "$DH_SSH" "cd $DH_DIR && $DH_PHP -d memory_limit=1024M bin/transfer-data.php import var/backups/transfer.json.gz $FLAG && rm var/backups/transfer.json.gz"
 fi
 
 echo "== 7. 本番の点検"

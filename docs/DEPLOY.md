@@ -112,6 +112,17 @@ DH_SSH=USER@server deploy/dreamhost/deploy.sh --apply --data  # 初回のみ: �
 - マイグレーションは追記のみ（適用済みファイルは編集しない）
 - 更新前に `php bin/backup.php` を一度回しておくと巻き戻せる
 
+### 大会データの自動同期（`bin/sync-prod.sh`）
+
+VM の cron から 10 分ごとに動き、VM の大会データ（と出典の証拠）が変わっていれば、本番の DB をバックアップしてから
+`transfer-data.php import --replace` で入れ替える。変わっていなければ何もしない。ログは `var/logs/sync-prod.log`。
+大会データの正は VM なので、本番の管理画面で取り込んだ分は次の同期で上書きされる。
+
+```bash
+crontab -l | grep droptime-sync-prod   # 登録の確認
+bin/sync-prod.sh --force               # 今すぐ運ぶ
+```
+
 ## 8. 障害時
 
 | 症状 | 見る場所 |

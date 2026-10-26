@@ -6,6 +6,7 @@
 /var/evidence/*
 /var/fetch/*
 /var/privacy/*
+/var/sync/*
 !/var/*/.gitignore
 !/var/*/.htaccess
 .DS_Store

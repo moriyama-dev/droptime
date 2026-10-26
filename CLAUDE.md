@@ -39,3 +39,11 @@ git config core.hooksPath .githooks
 - 画面のフッターに「問題を報告」と「GitHub」を置く（GBrain の `ops/app-feedback-buttons-standard`）。
   DropTime は保護者・選手の画面にだけ出し、管理画面には出さない。
 - 日時はトロント時間（America/Toronto）で書く。
+
+## 大会データと本番の自動同期
+
+- 大会データの正は **VM**。取得・取り込み・選手の統合は VM で行う。
+- VM の cron（10 分ごと・`# droptime-sync-prod`）が `bin/sync-prod.sh` を動かし、データが変わっていれば本番（DreamHost の MySQL）へ自動で運ぶ。
+  運ぶ前に本番の DB をバックアップする。Yoshi の確認は待たない（2026-10-26 Yoshi の指示）。ログは `var/logs/sync-prod.log`。
+- 本番の管理画面で取り込んだデータは、次の同期で VM の内容に置き換わる。
+- コードの反映は別で、`DH_SSH=droptime-prod DH_DIR=droptime.takumi.ca deploy/dreamhost/deploy.sh --apply`。
