@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
-# push する全コミット（差分・メッセージ・先端のツリー）に個人名・個人情報が無いかを確かめる。
+# push する全コミット（差分・メッセージ・作成者・先端のツリー）に個人名・クラブ名・機密情報が無いかを確かめる。
+# あわせて、GitHub Actions 側の見張りの語（秘密の値 PRIVACY_TERMS）が古くなっていないかを知らせる。
 set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
+
+if [ "$(git config core.hooksPath)" != ".githooks" ]; then
+  echo "pre-push: core.hooksPath が .githooks ではありません。止めます（git config core.hooksPath .githooks）。" >&2
+  exit 1
+fi
+
 zero=0000000000000000000000000000000000000000
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ "$local_sha" = "$zero" ] && continue   # ブランチの削除
   if [ "$remote_sha" = "$zero" ]; then range="$local_sha"; else range="$remote_sha..$local_sha"; fi
   php "$root/bin/privacy-check.php" --push "$range"
 done
+
+"$root/bin/privacy-sync-github.sh" --check || true

@@ -1,0 +1,28 @@
+# 公開リポジトリに個人名・クラブ名・機密情報が出ていないかを、push のたびに確かめる。
+# VM の git フックを通らない変更（GitHub の Web 画面での直接編集など）を見つけるためのもの。
+# 失敗すると GitHub から通知メールが届く。語は秘密の値 PRIVACY_TERMS に塩付きハッシュでだけ置く
+# （作り方・更新は bin/privacy-sync-github.sh）。
+name: privacy
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 11 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: privacy-ci
+        env:
+          PRIVACY_TERMS: ${{ secrets.PRIVACY_TERMS }}
+        run: php bin/privacy-ci.php "${{ github.event.before || '' }}" "${{ github.sha }}"
