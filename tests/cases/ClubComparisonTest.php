@@ -44,6 +44,27 @@ return [
     '年齢の記録が無ければ推定できない' => static function (): void {
         Assert::same(null, BirthEstimate::birthYears(null, [['date' => '2026-06-05', 'age' => null]]));
     },
+    '生まれ年の幅は年下・年上を別々に広げる' => static function (): void {
+        $rows = [
+            clubRow(1, 'Me', '2026-06-05', 9, 3874, 50, 'FR', 2017),
+            clubRow(2, 'Same', '2026-06-05', 9, 3800, 50, 'FR', 2017),
+            clubRow(3, 'Older', '2026-06-05', 11, 3500, 50, 'FR', 2015),
+            clubRow(4, 'Younger', '2026-06-05', 7, 4300, 50, 'FR', 2019),
+        ];
+        $names = static function (array $result): array {
+            $names = array_values(array_filter(
+                array_map(static fn (array $p): string => $p['name'], $result['peers']),
+                static fn (string $n): bool => $n !== 'Me'
+            ));
+            sort($names);
+
+            return $names;
+        };
+
+        Assert::same(['Same'], $names(ClubComparison::build(1, $rows, 0, 0)), '既定は同じ生まれ年だけ');
+        Assert::same(['Older', 'Same'], $names(ClubComparison::build(1, $rows, 0, 2)), '年上（2015 年生まれ）だけ広げる');
+        Assert::same(['Same', 'Younger'], $names(ClubComparison::build(1, $rows, 2, 0)), '年下（2019 年生まれ）だけ広げる');
+    },
     'クラブ内で年の近い仲間だけを自己ベストで並べる' => static function (): void {
         $rows = [
             clubRow(1, 'Me', '2026-06-05', 9, 3874, 50, 'FR', 2017),
@@ -54,7 +75,7 @@ return [
             clubRow(2, 'Faster', '2026-06-05', 9, 9000, 100, 'BK'), // 自分が泳いでいない種目
         ];
 
-        $result = ClubComparison::build(1, $rows, 1);
+        $result = ClubComparison::build(1, $rows, 1, 1);
 
         Assert::same([2017, 2017], $result['child_years']);
         Assert::same(3, count($result['peers']), '本人 + 2 人');
@@ -72,7 +93,7 @@ return [
             clubRow(1, 'Me', '2026-06-05', 9, 4000, 50, 'FR', 2017),
             clubRow(2, 'Tie', '2026-06-05', 9, 4000),
         ];
-        $shape = ClubComparison::build(1, $rows, 1)['shapes'][0];
+        $shape = ClubComparison::build(1, $rows, 1, 1)['shapes'][0];
         Assert::same(1, $shape['child_rank']);
         Assert::same(null, $shape['gap_above_cs']);
     },

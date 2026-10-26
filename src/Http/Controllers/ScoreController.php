@@ -62,13 +62,12 @@ final class ScoreController extends Controller
         ));
 
         // 「同じ年齢」の幅。既定は同い年だけ。?younger=1 で 1 歳下まで、?older=1 で 1 歳上まで含める。
-        $ageRange = [
-            'younger' => max(0, min(self::MAX_AGE_SPREAD, (int) $request->queryString('younger', '0'))),
-            'older' => max(0, min(self::MAX_AGE_SPREAD, (int) $request->queryString('older', '0'))),
-        ];
+        $ageRange = self::range($request, 'younger', 'older');
+        // 「同じクラブ」の幅（生まれ年）。既定は同じ生まれ年頃だけ。?club_younger / ?club_older で広げる。
+        $clubRange = self::range($request, 'club_younger', 'club_older');
 
         $shapes = Progression::withRanks(Progression::build($results), $fields, $ageRange['younger'], $ageRange['older']);
-        $club = $this->clubComparison($swimmers, $swimmer, 1, false);
+        $club = $this->clubComparison($swimmers, $swimmer, $clubRange, false);
 
         return $this->view('parent/scores', [
             'swimmer' => $swimmer,
@@ -79,8 +78,22 @@ final class ScoreController extends Controller
             'ranking' => self::ranking($shapes, $club),
             'clubPeers' => $club === null ? 0 : count($club['peers']) - 1,
             'ageRange' => $ageRange,
+            'clubRange' => $clubRange,
             'maxAgeSpread' => self::MAX_AGE_SPREAD,
         ]);
+    }
+
+    /**
+     * 年下・年上の幅をクエリから読む。0〜MAX_AGE_SPREAD に収める。
+     *
+     * @return array{younger: int, older: int}
+     */
+    private static function range(Request $request, string $youngerKey, string $olderKey): array
+    {
+        return [
+            'younger' => max(0, min(self::MAX_AGE_SPREAD, (int) $request->queryString($youngerKey, '0'))),
+            'older' => max(0, min(self::MAX_AGE_SPREAD, (int) $request->queryString($olderKey, '0'))),
+        ];
     }
 
     /**
@@ -89,7 +102,7 @@ final class ScoreController extends Controller
      * 成績の画面（show）の ③ は仲間の中での順位だけを出す。こちらは
      * 仲間全員のタイムを並べた一覧で、上部の切り替えで行き来できる。
      *
-     * ?band=1|2 で生年の幅、?gender=all で男女をまとめて比べる。
+     * ?club_younger / ?club_older で生まれ年の幅（年下・年上を別々に）、?gender=all で男女をまとめて比べる。
      */
     public function club(Request $request): Response
     {
@@ -100,24 +113,25 @@ final class ScoreController extends Controller
             throw HttpException::notFound('選手が見つかりません。');
         }
 
-        $band = (int) $request->queryString('band', '1');
-        $band = in_array($band, [1, 2], true) ? $band : 1;
+        $clubRange = self::range($request, 'club_younger', 'club_older');
         $allGenders = $request->queryString('gender') === 'all';
 
         return $this->view('parent/scores-club', [
             'swimmer' => $swimmer,
             'switcher' => $this->switcher((int) $swimmer['id'], $swimmer),
-            'comparison' => $this->clubComparison($swimmers, $swimmer, $band, $allGenders),
-            'band' => $band,
+            'comparison' => $this->clubComparison($swimmers, $swimmer, $clubRange, $allGenders),
+            'clubRange' => $clubRange,
+            'maxAgeSpread' => self::MAX_AGE_SPREAD,
             'allGenders' => $allGenders,
         ]);
     }
 
     /**
-     * @param array<string, mixed> $swimmer
+     * @param array<string, mixed>              $swimmer
+     * @param array{younger: int, older: int}   $range 生まれ年の幅
      * @return array<string, mixed>|null 所属クラブが分からなければ null
      */
-    private function clubComparison(SwimmerRepository $swimmers, array $swimmer, int $band, bool $allGenders): ?array
+    private function clubComparison(SwimmerRepository $swimmers, array $swimmer, array $range, bool $allGenders): ?array
     {
         if ($swimmer['team_id'] === null) {
             return null;
@@ -128,7 +142,7 @@ final class ScoreController extends Controller
             $allGenders ? null : ($swimmer['gender'] !== null ? (string) $swimmer['gender'] : null)
         );
 
-        return ClubComparison::build((int) $swimmer['id'], $rows, $band);
+        return ClubComparison::build((int) $swimmer['id'], $rows, $range['younger'], $range['older']);
     }
 
     /**
@@ -337,7 +351,7 @@ final class ScoreController extends Controller
      *
      *   同じ年齢: その種目のいちばん新しいレースで、同い年の中で何位か
      *             （同い年が居なければ全体順位に落とし、そう明記する）
-     *   同じクラブ: 同じクラブ・同じ性別・生年 ±1 の仲間の中で、自己ベストが何位か
+     *   同じクラブ: 同じクラブ・同じ性別・生まれ年が近い仲間の中で、自己ベストが何位か（幅は画面で選ぶ）
      *
      * 棒は「何人より前に居るか」に比例させる（1 位で満タン）。
      *

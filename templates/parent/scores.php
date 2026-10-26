@@ -14,14 +14,18 @@ use DropTime\Support\View;
 /** @var list<array<string, mixed>> $ranking */
 /** @var int $clubPeers */
 /** @var array{younger: int, older: int} $ageRange */
+/** @var array{younger: int, older: int} $clubRange */
 /** @var int $maxAgeSpread */
 /** @var DropTime\Support\View $view */
 $e = static fn (mixed $v): string => View::e($v);
 $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
 
-/** 「同じ年齢」の幅を変えたページの URL。既定（同い年だけ）の値は付けない。 */
-$rangeUrl = static function (int $younger, int $older) use ($view, $swimmer): string {
-    $query = array_filter(['younger' => $younger, 'older' => $older]);
+/** 年齢の幅を変えたページの URL。既定（0）の値は付けない。 */
+$rangeUrl = static function (array $age, array $club) use ($view, $swimmer): string {
+    $query = array_filter([
+        'younger' => $age['younger'], 'older' => $age['older'],
+        'club_younger' => $club['younger'], 'club_older' => $club['older'],
+    ]);
 
     return $view->url('scores.show', ['swimmer' => (int) $swimmer['id']])
         . ($query === [] ? '' : '?' . http_build_query($query)) . '#ranking-title';
@@ -229,40 +233,22 @@ $rangeUrl = static function (int $younger, int $older) use ($view, $swimmer): st
                 </label>
             </div>
 
-            <?php
-            // 「同じ年齢」の幅。年下・年上を 1 歳ずつ広げたり狭めたりする（JavaScript なしのリンク）。
-            $steppers = [
-                ['key' => 'younger', 'label' => $t('rankx.younger'), 'value' => $ageRange['younger'] === 0 ? $t('rankx.years_none') : $t('rankx.years_younger', $ageRange['younger'])],
-                ['key' => 'older', 'label' => $t('rankx.older'), 'value' => $ageRange['older'] === 0 ? $t('rankx.years_none') : $t('rankx.years_older', $ageRange['older'])],
-            ];
-            ?>
-            <div class="age-range is-age" role="group" aria-label="<?= $t('rankx.range') ?>">
-                <span class="age-range__title"><?= $t('rankx.range') ?></span>
-                <?php foreach ($steppers as $stepper) : ?>
-                    <?php
-                    $current = $ageRange[$stepper['key']];
-                    $less = $stepper['key'] === 'younger' ? $rangeUrl($current - 1, $ageRange['older']) : $rangeUrl($ageRange['younger'], $current - 1);
-                    $more = $stepper['key'] === 'younger' ? $rangeUrl($current + 1, $ageRange['older']) : $rangeUrl($ageRange['younger'], $current + 1);
-                    ?>
-                    <span class="age-range__stepper">
-                        <span class="age-range__label"><?= $stepper['label'] ?></span>
-                        <?php if ($current > 0) : ?>
-                            <a class="age-range__button" href="<?= $e($less) ?>" aria-label="<?= $stepper['label'] ?> <?= $t('rankx.narrow') ?>">−</a>
-                        <?php else : ?>
-                            <span class="age-range__button is-disabled" aria-hidden="true">−</span>
-                        <?php endif; ?>
-                        <span class="age-range__value time" aria-live="polite"><?= $stepper['value'] ?></span>
-                        <?php if ($current < $maxAgeSpread) : ?>
-                            <a class="age-range__button" href="<?= $e($more) ?>" aria-label="<?= $stepper['label'] ?> <?= $t('rankx.widen') ?>">+</a>
-                        <?php else : ?>
-                            <span class="age-range__button is-disabled" aria-hidden="true">+</span>
-                        <?php endif; ?>
-                    </span>
-                <?php endforeach; ?>
-                <?php if ($ageRange['younger'] > 0 || $ageRange['older'] > 0) : ?>
-                    <a class="age-range__reset" href="<?= $e($rangeUrl(0, 0)) ?>"><?= $t('rankx.reset') ?></a>
-                <?php endif; ?>
-            </div>
+            <?= $view->partial('parent/_age-range', [
+                'title' => Lang::t('rankx.range'),
+                'younger' => $ageRange['younger'],
+                'older' => $ageRange['older'],
+                'max' => $maxAgeSpread,
+                'url' => static fn (int $y, int $o): string => $rangeUrl(['younger' => $y, 'older' => $o], $clubRange),
+                'class' => 'is-age',
+            ]) ?>
+            <?= $view->partial('parent/_age-range', [
+                'title' => Lang::t('rankx.club_range'),
+                'younger' => $clubRange['younger'],
+                'older' => $clubRange['older'],
+                'max' => $maxAgeSpread,
+                'url' => static fn (int $y, int $o): string => $rangeUrl($ageRange, ['younger' => $y, 'older' => $o]),
+                'class' => 'is-club',
+            ]) ?>
 
             <?php if ($highlights['best_peer'] !== null) : ?>
                 <p class="rank-best is-age rise">
@@ -328,7 +314,8 @@ $rangeUrl = static function (int $younger, int $older) use ($view, $swimmer): st
             <p class="footnote is-age"><?= $t('rankx.age_note') ?></p>
             <p class="footnote is-club">
                 <?= $t('rankx.club_note', $clubPeers) ?>
-                <a href="<?= $view->url('scores.club', ['swimmer' => (int) $swimmer['id']]) ?>"><?= $t('rankx.club_link') ?></a>
+                <?php $clubQuery = http_build_query(array_filter(['club_younger' => $clubRange['younger'], 'club_older' => $clubRange['older']])); ?>
+                <a href="<?= $e($view->url('scores.club', ['swimmer' => (int) $swimmer['id']]) . ($clubQuery === '' ? '' : '?' . $clubQuery)) ?>"><?= $t('rankx.club_link') ?></a>
             </p>
         </section>
     <?php endif; ?>

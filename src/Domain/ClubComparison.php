@@ -21,7 +21,8 @@ final class ClubComparison
     /**
      * @param int                        $childId 主役の選手
      * @param list<array<string, mixed>> $rows    クラブ全員の結果（SwimmerRepository::clubResults() の行）
-     * @param int                        $band    生年の幅（±年）
+     * @param int                        $younger 年下（生年が後）へ何年まで広げるか（0 = 広げない）
+     * @param int                        $older   年上（生年が先）へ何年まで広げるか（0 = 広げない）
      * @return array{
      *     child_years: ?array{0:int,1:int},
      *     peers: list<array{id:int, name:string, years:?array{0:int,1:int}, is_child:bool}>,
@@ -29,7 +30,7 @@ final class ClubComparison
      *     other_shapes: list<array{label:string, count:int}>
      * }
      */
-    public static function build(int $childId, array $rows, int $band): array
+    public static function build(int $childId, array $rows, int $younger, int $older): array
     {
         $bySwimmer = [];
 
@@ -65,8 +66,8 @@ final class ClubComparison
                 continue;
             }
 
-            // 範囲どうしが重なるか。幅は主役の側に広げる。
-            if ($years[$id][1] >= $childYears[0] - $band && $years[$id][0] <= $childYears[1] + $band) {
+            // 範囲どうしが重なるか。幅は主役の側に広げる（年上は生年を前へ、年下は後ろへ）。
+            if ($years[$id][1] >= $childYears[0] - $older && $years[$id][0] <= $childYears[1] + $younger) {
                 $peerIds[] = $id;
             }
         }

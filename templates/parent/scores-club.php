@@ -9,7 +9,8 @@ use DropTime\Support\View;
 /** @var array<string, mixed> $swimmer */
 /** @var list<array<string, mixed>> $switcher */
 /** @var array<string, mixed>|null $comparison */
-/** @var int $band */
+/** @var array{younger: int, older: int} $clubRange */
+/** @var int $maxAgeSpread */
 /** @var bool $allGenders */
 /** @var DropTime\Support\View $view */
 $e = static fn (mixed $v): string => View::e($v);
@@ -25,8 +26,12 @@ $years = static function (?array $range): string {
 };
 
 $base = $view->url('scores.club', ['swimmer' => (int) $swimmer['id']]);
-$link = static function (int $band, bool $all) use ($base): string {
-    $query = http_build_query(array_filter(['band' => $band === 1 ? null : $band, 'gender' => $all ? 'all' : null]));
+$link = static function (array $range, bool $all) use ($base): string {
+    $query = http_build_query(array_filter([
+        'club_younger' => $range['younger'],
+        'club_older' => $range['older'],
+        'gender' => $all ? 'all' : null,
+    ]));
 
     return $base . ($query === '' ? '' : '?' . $query);
 };
@@ -45,15 +50,21 @@ $link = static function (int $band, bool $all) use ($base): string {
     <p class="empty"><?= $t('club.no_age') ?></p>
 <?php else : ?>
     <p class="club-lead">
-        <?= $t('club.lead', (string) $swimmer['team_name'], $years([$comparison['child_years'][0] - $band, $comparison['child_years'][1] + $band]), count($comparison['peers']) - 1) ?>
+        <?= $t('club.lead', (string) $swimmer['team_name'], $years([$comparison['child_years'][0] - $clubRange['older'], $comparison['child_years'][1] + $clubRange['younger']]), count($comparison['peers']) - 1) ?>
     </p>
 
+    <?= $view->partial('parent/_age-range', [
+        'title' => DropTime\Support\Lang::t('rankx.club_range'),
+        'younger' => $clubRange['younger'],
+        'older' => $clubRange['older'],
+        'max' => $maxAgeSpread,
+        'url' => static fn (int $y, int $o): string => $link(['younger' => $y, 'older' => $o], $allGenders),
+        'class' => '',
+    ]) ?>
+
     <div class="filter-row" role="group" aria-label="<?= $t('club.filters') ?>">
-        <?php foreach ([1, 2] as $option) : ?>
-            <a class="filter-chip<?= $option === $band ? ' filter-chip--active' : '' ?>" href="<?= $e($link($option, $allGenders)) ?>"><?= $t('club.band', $option) ?></a>
-        <?php endforeach; ?>
-        <a class="filter-chip<?= !$allGenders ? ' filter-chip--active' : '' ?>" href="<?= $e($link($band, false)) ?>"><?= $t('club.same_gender') ?></a>
-        <a class="filter-chip<?= $allGenders ? ' filter-chip--active' : '' ?>" href="<?= $e($link($band, true)) ?>"><?= $t('club.all_genders') ?></a>
+        <a class="filter-chip<?= !$allGenders ? ' filter-chip--active' : '' ?>" href="<?= $e($link($clubRange, false)) ?>"><?= $t('club.same_gender') ?></a>
+        <a class="filter-chip<?= $allGenders ? ' filter-chip--active' : '' ?>" href="<?= $e($link($clubRange, true)) ?>"><?= $t('club.all_genders') ?></a>
     </div>
 
     <?php if ($comparison['shapes'] === []) : ?>
