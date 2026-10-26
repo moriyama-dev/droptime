@@ -79,15 +79,23 @@ $languages = ['en' => 'EN', 'ja' => '日本語', 'yue' => '廣東話'];
             <?php endif; ?>
         <?php endif; ?>
     </div>
-    <nav class="langswitch" aria-label="<?= $t('nav.language') ?>">
-        <?php foreach ($languages as $code => $label) : ?>
-            <?php if (Lang::current() === $code) : ?>
-                <span class="langswitch__item langswitch__item--active" aria-current="true"><?= $e($label) ?></span>
-            <?php else : ?>
-                <a class="langswitch__item" href="<?= $e($langUrl($code)) ?>" lang="<?= $code === 'yue' ? 'yue-Hant' : $e($code) ?>"><?= $e($label) ?></a>
-            <?php endif; ?>
-        <?php endforeach; ?>
-    </nav>
+    <div class="topbar__end">
+        <?php if ($isParent) : ?>
+            <form class="topbar__logout" method="post" action="<?= $e($basePath) ?>/logout">
+                <?= DropTime\Http\Csrf::field() ?>
+                <button type="submit" class="topbar__switch"><?= $t('common.logout') ?></button>
+            </form>
+        <?php endif; ?>
+        <nav class="langswitch" aria-label="<?= $t('nav.language') ?>">
+            <?php foreach ($languages as $code => $label) : ?>
+                <?php if (Lang::current() === $code) : ?>
+                    <span class="langswitch__item langswitch__item--active" aria-current="true"><?= $e($label) ?></span>
+                <?php else : ?>
+                    <a class="langswitch__item" href="<?= $e($langUrl($code)) ?>" lang="<?= $code === 'yue' ? 'yue-Hant' : $e($code) ?>"><?= $e($label) ?></a>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </nav>
+    </div>
 </header>
 <main id="main" class="main">
 <?= $content ?>

@@ -134,8 +134,4 @@ $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
     <?php if ($isAdmin) : ?>
         <a class="footer-nav__link" href="<?= $view->url('admin.home') ?>"><?= $t('common.admin_link') ?></a>
     <?php endif; ?>
-    <form method="post" action="<?= $view->url('logout') ?>">
-        <?= DropTime\Http\Csrf::field() ?>
-        <button type="submit" class="button button--quiet"><?= $t('common.logout') ?></button>
-    </form>
 </nav>
