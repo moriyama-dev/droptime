@@ -324,7 +324,7 @@ return [
     'rankx.overall' => 'No one the same age, so overall',
     'rankx.club_none' => 'No teammate times',
     'rankx.all_off' => 'Turn on "Same age" or "Same club" to see rankings.',
-    'rankx.age_note' => 'Same age: place among swimmers of the same age in the latest race of that event.',
+    'rankx.age_note' => 'Same age: place among swimmers of the same age in the latest race of that event. It starts with the same age only; use “Age range” to add younger or older swimmers one year at a time.',
     'rankx.club_note' => 'Same club: personal-best place among %d teammates of the same club and gender, born within ±1 year.',
     'rankx.club_link' => 'See teammates\' times →',
     'cmp.prev_course' => 'Last %s',
@@ -352,4 +352,17 @@ return [
     'feedback.report' => 'Report a problem',
     'feedback.report_hint' => 'Opens a pre-filled GitHub issue (version, page and browser included)',
     'feedback.source_hint' => 'Source code',
+
+    // 「同じ年齢」の幅（成績ページ）
+    'rankx.range' => 'Age range',
+    'rankx.younger' => 'Younger',
+    'rankx.older' => 'Older',
+    'rankx.years_younger' => '−%d yr',
+    'rankx.years_older' => '+%d yr',
+    'rankx.narrow' => 'narrower',
+    'rankx.widen' => 'wider',
+    'rankx.reset' => 'Same age only',
+    'rankx.years_none' => '0 yr',
+    'scores.best_peer_range' => 'Best place in the chosen age range',
+    'rank.peer_range' => 'Among ages %d–%d',
 ];

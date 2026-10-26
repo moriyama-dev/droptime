@@ -194,7 +194,10 @@ final class FieldStripSvg
             if ($basis === 'peer') {
                 $age = $row['age'] ?? null;
 
-                if ($age === null || (int) $age !== (int) $rank['peer']['age']) {
+                $min = (int) ($rank['peer']['age_min'] ?? $rank['peer']['age']);
+                $max = (int) ($rank['peer']['age_max'] ?? $rank['peer']['age']);
+
+                if ($age === null || (int) $age < $min || (int) $age > $max) {
                     continue;
                 }
             }

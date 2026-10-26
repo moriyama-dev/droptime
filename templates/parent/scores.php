@@ -13,9 +13,19 @@ use DropTime\Support\View;
 /** @var array{drops: list<array<string, mixed>>, charts: list<array<string, mixed>>, singles: list<array<string, mixed>>} $history */
 /** @var list<array<string, mixed>> $ranking */
 /** @var int $clubPeers */
+/** @var array{younger: int, older: int} $ageRange */
+/** @var int $maxAgeSpread */
 /** @var DropTime\Support\View $view */
 $e = static fn (mixed $v): string => View::e($v);
 $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
+
+/** 「同じ年齢」の幅を変えたページの URL。既定（同い年だけ）の値は付けない。 */
+$rangeUrl = static function (int $younger, int $older) use ($view, $swimmer): string {
+    $query = array_filter(['younger' => $younger, 'older' => $older]);
+
+    return $view->url('scores.show', ['swimmer' => (int) $swimmer['id']])
+        . ($query === [] ? '' : '?' . http_build_query($query)) . '#ranking-title';
+};
 
 /*
  * 上から ① いちばん新しい記録（1 つ前との比較つき）② 種目ごとのこれまで
@@ -219,9 +229,44 @@ $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
                 </label>
             </div>
 
+            <?php
+            // 「同じ年齢」の幅。年下・年上を 1 歳ずつ広げたり狭めたりする（JavaScript なしのリンク）。
+            $steppers = [
+                ['key' => 'younger', 'label' => $t('rankx.younger'), 'value' => $ageRange['younger'] === 0 ? $t('rankx.years_none') : $t('rankx.years_younger', $ageRange['younger'])],
+                ['key' => 'older', 'label' => $t('rankx.older'), 'value' => $ageRange['older'] === 0 ? $t('rankx.years_none') : $t('rankx.years_older', $ageRange['older'])],
+            ];
+            ?>
+            <div class="age-range is-age" role="group" aria-label="<?= $t('rankx.range') ?>">
+                <span class="age-range__title"><?= $t('rankx.range') ?></span>
+                <?php foreach ($steppers as $stepper) : ?>
+                    <?php
+                    $current = $ageRange[$stepper['key']];
+                    $less = $stepper['key'] === 'younger' ? $rangeUrl($current - 1, $ageRange['older']) : $rangeUrl($ageRange['younger'], $current - 1);
+                    $more = $stepper['key'] === 'younger' ? $rangeUrl($current + 1, $ageRange['older']) : $rangeUrl($ageRange['younger'], $current + 1);
+                    ?>
+                    <span class="age-range__stepper">
+                        <span class="age-range__label"><?= $stepper['label'] ?></span>
+                        <?php if ($current > 0) : ?>
+                            <a class="age-range__button" href="<?= $e($less) ?>" aria-label="<?= $stepper['label'] ?> <?= $t('rankx.narrow') ?>">−</a>
+                        <?php else : ?>
+                            <span class="age-range__button is-disabled" aria-hidden="true">−</span>
+                        <?php endif; ?>
+                        <span class="age-range__value time" aria-live="polite"><?= $stepper['value'] ?></span>
+                        <?php if ($current < $maxAgeSpread) : ?>
+                            <a class="age-range__button" href="<?= $e($more) ?>" aria-label="<?= $stepper['label'] ?> <?= $t('rankx.widen') ?>">+</a>
+                        <?php else : ?>
+                            <span class="age-range__button is-disabled" aria-hidden="true">+</span>
+                        <?php endif; ?>
+                    </span>
+                <?php endforeach; ?>
+                <?php if ($ageRange['younger'] > 0 || $ageRange['older'] > 0) : ?>
+                    <a class="age-range__reset" href="<?= $e($rangeUrl(0, 0)) ?>"><?= $t('rankx.reset') ?></a>
+                <?php endif; ?>
+            </div>
+
             <?php if ($highlights['best_peer'] !== null) : ?>
                 <p class="rank-best is-age rise">
-                    <span class="rank-best__label"><?= $t('scores.best_peer') ?></span>
+                    <span class="rank-best__label"><?= $ageRange['younger'] + $ageRange['older'] === 0 ? $t('scores.best_peer') : $t('scores.best_peer_range') ?></span>
                     <span class="rank-best__value time"><?= $t('rank.place_of', (int) $highlights['best_peer']['rank'], (int) $highlights['best_peer']['count']) ?></span>
                     <span class="rank-best__event"><?= $e($highlights['best_peer']['label']) ?></span>
                 </p>
@@ -243,7 +288,13 @@ $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
                                 <span class="rank-table__place time"><?= $t('rank.place_of', $row['age']['rank'], $row['age']['count']) ?></span>
                                 <?= $row['age']['bar'] ?>
                                 <span class="rank-table__sub">
-                                    <?= $row['age']['is_peer'] ? $t('rank.peer_of', (int) $row['age']['age']) : $t('rankx.overall') ?>
+                                    <?php if (!$row['age']['is_peer']) : ?>
+                                        <?= $t('rankx.overall') ?>
+                                    <?php elseif ($row['age']['age_min'] === $row['age']['age_max']) : ?>
+                                        <?= $t('rank.peer_of', (int) $row['age']['age']) ?>
+                                    <?php else : ?>
+                                        <?= $t('rank.peer_range', $row['age']['age_min'], $row['age']['age_max']) ?>
+                                    <?php endif; ?>
                                     <?php if ($row['age']['gap_ahead_cs'] !== null) : ?>
                                         · <?= $t('rank.gap_ahead', SwimTime::formatGap((int) $row['age']['gap_ahead_cs'])) ?>
                                     <?php endif; ?>

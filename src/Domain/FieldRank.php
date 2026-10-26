@@ -21,17 +21,22 @@ final class FieldRank
     private const MIN_PEERS = 2;
 
     /**
-     * @param array<string, mixed>       $target 対象選手の結果行
-     * @param list<array<string, mixed>> $field  同じ種目の全結果行（非計時も混じってよい）
+     * 「同じ年齢」は既定で同い年だけ。$younger / $older で、年下・年上へそれぞれ何歳まで
+     * 含めるかを広げられる（保護者が画面で選ぶ）。
+     *
+     * @param array<string, mixed>       $target  対象選手の結果行
+     * @param list<array<string, mixed>> $field   同じ種目の全結果行（非計時も混じってよい）
+     * @param int                        $younger 年下へ何歳まで含めるか（0 = 含めない）
+     * @param int                        $older   年上へ何歳まで含めるか（0 = 含めない）
      * @return array{
      *     time_cs: int, age: ?int, basis: 'peer'|'overall',
      *     overall: array{rank: int, count: int, beaten: int, top_percent: int,
      *                    gap_ahead_cs: ?int, gap_behind_cs: ?int, median_cs: int},
-     *     peer: ?array{age: int, rank: int, count: int, beaten: int, top_percent: int,
-     *                  gap_ahead_cs: ?int, gap_behind_cs: ?int, median_cs: int}
+     *     peer: ?array{age: int, age_min: int, age_max: int, rank: int, count: int, beaten: int,
+     *                  top_percent: int, gap_ahead_cs: ?int, gap_behind_cs: ?int, median_cs: int}
      * }|null
      */
-    public static function of(array $target, array $field): ?array
+    public static function of(array $target, array $field, int $younger = 0, int $older = 0): ?array
     {
         $time = self::timeOf($target);
 
@@ -51,13 +56,15 @@ final class FieldRank
         $peer = null;
 
         if ($age !== null) {
+            $min = $age - max(0, $younger);
+            $max = $age + max(0, $older);
             $sameAge = array_values(array_filter(
                 $finishers,
-                static fn (array $row): bool => $row['age'] !== null && $row['age'] === $age
+                static fn (array $row): bool => $row['age'] !== null && $row['age'] >= $min && $row['age'] <= $max
             ));
 
             if (count($sameAge) >= self::MIN_PEERS) {
-                $peer = ['age' => $age] + self::standing($time, $sameAge);
+                $peer = ['age' => $age, 'age_min' => $min, 'age_max' => $max] + self::standing($time, $sameAge);
             }
         }
 

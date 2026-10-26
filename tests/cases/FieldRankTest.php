@@ -12,6 +12,26 @@ function rankRow(int $timeCs, ?int $age = null, string $status = 'OK'): array
 }
 
 return [
+    '「同じ年齢」は既定で同い年だけ、年下・年上を別々に広げられる' => static function (): void {
+        $me = rankRow(3874, 9);
+        $field = [rankRow(3482, 10), rankRow(3499, 11), rankRow(3700, 8), $me, rankRow(3929, 9), rankRow(4100, 7)];
+
+        $same = FieldRank::of($me, $field);
+        Assert::same(1, $same['peer']['rank'], '既定は 9 歳だけ');
+        Assert::same(2, $same['peer']['count']);
+        Assert::same(9, $same['peer']['age_min']);
+        Assert::same(9, $same['peer']['age_max']);
+
+        $older = FieldRank::of($me, $field, 0, 1);
+        Assert::same(2, $older['peer']['rank'], '1 歳上（10 歳）まで含める');
+        Assert::same(3, $older['peer']['count']);
+        Assert::same(10, $older['peer']['age_max']);
+
+        $younger = FieldRank::of($me, $field, 2, 0);
+        Assert::same(2, $younger['peer']['rank'], '2 歳下（7〜8 歳）まで含める。11 歳は入らない');
+        Assert::same(4, $younger['peer']['count']);
+        Assert::same(7, $younger['peer']['age_min']);
+    },
     '全体順位はタイムから数える' => static function (): void {
         $me = rankRow(3874, 9);
         $field = [rankRow(3482, 10), rankRow(3499, 10), rankRow(3501, 10), $me, rankRow(3929, 9)];

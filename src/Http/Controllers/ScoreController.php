@@ -29,6 +29,9 @@ use DropTime\Repository\SwimmerRepository;
  */
 final class ScoreController extends Controller
 {
+    /** 「同じ年齢」を年下・年上へ広げられる上限（それぞれ）。 */
+    private const MAX_AGE_SPREAD = 3;
+
     /** 選手を指定せずに来たとき、お気に入りの先頭へ送る。 */
     public function index(Request $request): Response
     {
@@ -58,7 +61,13 @@ final class ScoreController extends Controller
             $results
         ));
 
-        $shapes = Progression::withRanks(Progression::build($results), $fields);
+        // 「同じ年齢」の幅。既定は同い年だけ。?younger=1 で 1 歳下まで、?older=1 で 1 歳上まで含める。
+        $ageRange = [
+            'younger' => max(0, min(self::MAX_AGE_SPREAD, (int) $request->queryString('younger', '0'))),
+            'older' => max(0, min(self::MAX_AGE_SPREAD, (int) $request->queryString('older', '0'))),
+        ];
+
+        $shapes = Progression::withRanks(Progression::build($results), $fields, $ageRange['younger'], $ageRange['older']);
         $club = $this->clubComparison($swimmers, $swimmer, 1, false);
 
         return $this->view('parent/scores', [
@@ -69,6 +78,8 @@ final class ScoreController extends Controller
             'history' => self::history($shapes),
             'ranking' => self::ranking($shapes, $club),
             'clubPeers' => $club === null ? 0 : count($club['peers']) - 1,
+            'ageRange' => $ageRange,
+            'maxAgeSpread' => self::MAX_AGE_SPREAD,
         ]);
     }
 
@@ -359,6 +370,8 @@ final class ScoreController extends Controller
                     'count' => (int) $standing['count'],
                     'is_peer' => $isPeer,
                     'age' => $swim['age'],
+                    'age_min' => $isPeer ? (int) $standing['age_min'] : null,
+                    'age_max' => $isPeer ? (int) $standing['age_max'] : null,
                     'date' => $swim['date'],
                     'gap_ahead_cs' => $standing['gap_ahead_cs'],
                     'bar' => self::rankBar((int) $standing['rank'], (int) $standing['count']),

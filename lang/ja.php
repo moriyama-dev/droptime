@@ -337,7 +337,7 @@ return [
     'rankx.overall' => '同い年がいないため全体',
     'rankx.club_none' => '仲間の記録なし',
     'rankx.all_off' => '「同じ年齢」か「同じクラブ」を ON にすると順位が出ます。',
-    'rankx.age_note' => '同じ年齢: その種目のいちばん新しいレースで、同じ年齢の選手の中での順位です。',
+    'rankx.age_note' => '同じ年齢: その種目のいちばん新しいレースで、同じ年齢の選手の中での順位です。最初は同い年だけで、「比べる年齢の幅」で年下・年上をそれぞれ 1 歳ずつ広げられます。',
     'rankx.club_note' => '同じクラブ: 同じクラブ・同じ性別で生まれ年が近い（±1 年）仲間 %d 人の中での、自己ベストの順位です。',
     'rankx.club_link' => '仲間のタイムを見る →',
     'cmp.prev_course' => '前回 %s',
@@ -365,4 +365,17 @@ return [
     'feedback.report' => '問題を報告',
     'feedback.report_hint' => 'GitHub に新しい Issue を作ります（版・画面・ブラウザは記入済み）',
     'feedback.source_hint' => 'ソースコード',
+
+    // 「同じ年齢」の幅（成績ページ）
+    'rankx.range' => '比べる年齢の幅',
+    'rankx.younger' => '年下',
+    'rankx.older' => '年上',
+    'rankx.years_younger' => '−%d 歳',
+    'rankx.years_older' => '+%d 歳',
+    'rankx.narrow' => 'を狭める',
+    'rankx.widen' => 'を広げる',
+    'rankx.reset' => '同い年だけに戻す',
+    'rankx.years_none' => '0 歳',
+    'scores.best_peer_range' => '選んだ年齢の幅での最高順位',
+    'rank.peer_range' => '%d〜%d 歳の中で',
 ];

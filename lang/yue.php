@@ -324,7 +324,7 @@ return [
     'rankx.overall' => '冇同齡選手，所以係全體',
     'rankx.club_none' => '冇隊友紀錄',
     'rankx.all_off' => '打開「同年齡」或者「同會」就會顯示名次。',
-    'rankx.age_note' => '同年齡：嗰個項目最近一場比賽入面，同年齡選手之中嘅名次。',
+    'rankx.age_note' => '同年齡：嗰個項目最近一場比賽入面，同年齡選手之中嘅名次。一開始只比同齡；用「比較年齡範圍」可以逐歲加入細過或者大過嘅選手。',
     'rankx.club_note' => '同會：同一個會、同性別、出世年份相近（±1 年）嘅 %d 位隊友之中，個人最佳嘅名次。',
     'rankx.club_link' => '睇隊友嘅時間 →',
     'cmp.prev_course' => '上次 %s',
@@ -352,4 +352,17 @@ return [
     'feedback.report' => '報告問題',
     'feedback.report_hint' => '喺 GitHub 開一個新 Issue（版本、頁面同瀏覽器已經填好）',
     'feedback.source_hint' => '原始碼',
+
+    // 「同じ年齢」の幅（成績ページ）
+    'rankx.range' => '比較年齡範圍',
+    'rankx.younger' => '細過',
+    'rankx.older' => '大過',
+    'rankx.years_younger' => '−%d 歲',
+    'rankx.years_older' => '+%d 歲',
+    'rankx.narrow' => '收窄',
+    'rankx.widen' => '擴闊',
+    'rankx.reset' => '只比同齡',
+    'rankx.years_none' => '0 歲',
+    'scores.best_peer_range' => '所揀年齡範圍內最佳名次',
+    'rank.peer_range' => '%d 至 %d 歲之中',
 ];

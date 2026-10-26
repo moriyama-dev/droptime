@@ -2406,3 +2406,57 @@ body.has-tabbar {
 /* パネル内のリンクは既定の青だと暗い背景で読めないので、アクセント色にする。 */
 .panel a:not(.button) { color: var(--dt-accent); }
 .panel form + .panel__note { margin-top: 12px; }
+
+/* ── 「同じ年齢」の幅（年下・年上を 1 歳ずつ） ───────────────── */
+
+.age-range {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin: 4px 0 12px;
+}
+
+.age-range__title {
+    width: 100%;
+    color: var(--dt-text-muted);
+    font-size: 0.875rem;
+}
+
+.age-range__stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.age-range__label {
+    min-width: 2.5em;
+}
+
+.age-range__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--dt-tap);
+    height: var(--dt-tap);
+    border: 1px solid var(--dt-border);
+    border-radius: 50%;
+    color: var(--dt-text);
+    font-size: 1.25rem;
+    text-decoration: none;
+}
+
+.age-range__button.is-disabled {
+    opacity: 0.3;
+}
+
+.age-range__value {
+    min-width: 3.5em;
+    text-align: center;
+    font-weight: 700;
+}
+
+.age-range__reset {
+    color: var(--dt-text-muted);
+    font-size: 0.875rem;
+}

@@ -146,9 +146,11 @@ final class Progression
      *
      * @param list<array<string, mixed>>              $shapes build() の戻り値
      * @param array<int, list<array<string, mixed>>>  $fields 種目 ID => その種目の全結果
+     * @param int $younger 「同じ年齢」に年下を何歳まで含めるか
+     * @param int $older   「同じ年齢」に年上を何歳まで含めるか
      * @return list<array<string, mixed>>
      */
-    public static function withRanks(array $shapes, array $fields): array
+    public static function withRanks(array $shapes, array $fields, int $younger = 0, int $older = 0): array
     {
         foreach ($shapes as $shapeIndex => $shape) {
             $bestPeer = null;
@@ -160,7 +162,9 @@ final class Progression
                         'age' => $swim['age'],
                         'status' => 'OK',
                     ],
-                    $fields[$swim['event_id']] ?? []
+                    $fields[$swim['event_id']] ?? [],
+                    $younger,
+                    $older
                 );
 
                 $shapes[$shapeIndex]['swims'][$swimIndex]['rank'] = $rank;
