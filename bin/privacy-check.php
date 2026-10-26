@@ -155,7 +155,11 @@ if ($mode === '--staged') {
 
     foreach (array_filter(explode("\n", $git('rev-list ' . escapeshellarg($range)))) as $commit) {
         $targets["コミット {$commit} のメッセージ"] = $git('log -1 --format=%an%n%B ' . escapeshellarg($commit));
-        $targets["コミット {$commit} の差分"] = $git('show --format= --no-color --unified=0 ' . escapeshellarg($commit));
+        // 差分は足した行（+）だけを見る。消した行は新しく公開するものではない
+        // （公開済みの名前を消すコミットまで止めてしまわないように）。
+        $diff = $git('show --format= --no-color --unified=0 ' . escapeshellarg($commit));
+        $added = array_filter(explode("\n", $diff), static fn (string $line): bool => str_starts_with($line, '+'));
+        $targets["コミット {$commit} の差分"] = implode("\n", $added);
 
         foreach (array_filter(explode("\0", $git('show --format= --name-only -z ' . escapeshellarg($commit)))) as $path) {
             $paths[] = $path;
