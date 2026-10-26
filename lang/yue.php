@@ -33,6 +33,8 @@ return [
     'auth.admin_title' => '管理頁面',
     'auth.admin_passphrase' => '管理通行碼',
     'auth.proceed' => '繼續',
+    'auth.show' => '顯示通行碼',
+    'auth.hide' => '隱藏通行碼',
 
     'err.notfound_title' => '搵唔到呢一頁',
     'err.notfound_body' => '請檢查網址。',

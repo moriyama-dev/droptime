@@ -112,6 +112,51 @@ body {
     font-size: 1.05rem;
 }
 
+/* 合言葉の欄の右端に置く目のアイコン（app.js が伏せ字と通常の文字を切り替える） */
+.field__reveal {
+    position: relative;
+    display: block;
+}
+
+.field__reveal .field__input {
+    padding-right: 56px;
+}
+
+.field__eye {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--dt-tap);
+    height: var(--dt-tap);
+    transform: translateY(-50%);
+    border: 0;
+    border-radius: var(--dt-radius);
+    background: transparent;
+    color: var(--dt-text-muted);
+    cursor: pointer;
+}
+
+.field__eye[hidden] {
+    display: none;
+}
+
+.field__eye:hover,
+.field__eye:focus-visible {
+    color: var(--dt-text);
+}
+
+.field__eye-closed,
+.field__eye[aria-pressed="true"] .field__eye-open {
+    display: none;
+}
+
+.field__eye[aria-pressed="true"] .field__eye-closed {
+    display: block;
+}
+
 .button {
     display: inline-flex;
     align-items: center;

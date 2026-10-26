@@ -14,7 +14,7 @@ use DropTime\Support\Lang;
 
 /**
  * ログイン。クラブ共通の合言葉ひとつだけで、ユーザー名は無い。
- * 管理画面だけは別の合言葉をもう一段要求する。
+ * 管理画面だけは別の合言葉をもう一段要求する（最初の欄に管理用の合言葉を入れた場合は、そのまま管理画面へ通す）。
  */
 final class AuthController extends Controller
 {
@@ -45,9 +45,14 @@ final class AuthController extends Controller
             ], 429);
         }
 
-        $expected = $this->context->config->string('auth.password_hash');
+        $config = $this->context->config;
+        $passphrase = $request->postString('passphrase');
 
-        if (!Auth::verifyPassphrase($expected, $request->postString('passphrase'))) {
+        // 管理用の合言葉をここに入れた人は、2 段目を飛ばして管理画面へ通す。
+        $adminHash = $config->string('auth.admin_password_hash');
+        $isAdmin = $adminHash !== '' && Auth::verifyPassphrase($adminHash, $passphrase);
+
+        if (!$isAdmin && !Auth::verifyPassphrase($config->string('auth.password_hash'), $passphrase)) {
             $throttle->recordFailure($ip, LoginThrottle::SCOPE_PARENT);
 
             return $this->view('auth/login', [
@@ -61,6 +66,12 @@ final class AuthController extends Controller
         // 固定化攻撃を避けるため、権限を与える前に ID を作り直す。
         session_regenerate_id(true);
         Auth::grantParent();
+
+        if ($isAdmin) {
+            Auth::grantAdmin();
+
+            return $this->redirectToRoute('admin.home');
+        }
 
         if ($next !== '') {
             return Response::redirect($this->context->config->string('app.base_path', '') . $next);

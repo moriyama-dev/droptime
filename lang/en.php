@@ -33,6 +33,8 @@ return [
     'auth.admin_title' => 'Admin area',
     'auth.admin_passphrase' => 'Admin passphrase',
     'auth.proceed' => 'Continue',
+    'auth.show' => 'Show passphrase',
+    'auth.hide' => 'Hide passphrase',
 
     'err.notfound_title' => 'Page not found',
     'err.notfound_body' => 'Please check the address.',

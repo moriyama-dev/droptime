@@ -67,3 +67,40 @@
         start();
     }
 })();
+
+/*
+ * 合言葉の欄の目のアイコン（templates/auth/_passphrase-input.php）。
+ * 目が開いている間は伏せ字、押すと目が閉じて文字がそのまま見える。
+ * ボタンは hidden で出力しておき、ここで初めて見せる（JavaScript が無ければ出ない）。
+ */
+(function () {
+    'use strict';
+
+    function setup(button) {
+        var input = button.parentNode.querySelector('input');
+
+        if (!input) {
+            return;
+        }
+
+        button.hidden = false;
+        button.addEventListener('click', function () {
+            var reveal = input.type === 'password';
+
+            input.type = reveal ? 'text' : 'password';
+            button.setAttribute('aria-pressed', reveal ? 'true' : 'false');
+            button.setAttribute('aria-label', button.getAttribute(reveal ? 'data-label-hide' : 'data-label-show'));
+            input.focus();
+        });
+    }
+
+    function start() {
+        document.querySelectorAll('[data-reveal]').forEach(setup);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+    } else {
+        start();
+    }
+})();

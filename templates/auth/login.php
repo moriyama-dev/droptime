@@ -23,7 +23,7 @@ $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
     <input type="hidden" name="next" value="<?= $e($next) ?>">
     <label class="field">
         <span class="field__label"><?= $t('auth.passphrase') ?></span>
-        <input class="field__input" type="password" name="passphrase" autocomplete="current-password" required autofocus>
+        <?= $view->partial('auth/_passphrase-input', ['autocomplete' => 'current-password']) ?>
     </label>
     <button type="submit" class="button"><?= $t('auth.enter') ?></button>
 </form>

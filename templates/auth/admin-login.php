@@ -20,7 +20,7 @@ $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
     <?= DropTime\Http\Csrf::field() ?>
     <label class="field">
         <span class="field__label"><?= $t('auth.admin_passphrase') ?></span>
-        <input class="field__input" type="password" name="passphrase" autocomplete="off" required autofocus>
+        <?= $view->partial('auth/_passphrase-input', ['autocomplete' => 'off']) ?>
     </label>
     <button type="submit" class="button"><?= $t('auth.proceed') ?></button>
 </form>

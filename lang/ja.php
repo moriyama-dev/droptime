@@ -35,6 +35,8 @@ return [
     'auth.admin_title' => '管理画面',
     'auth.admin_passphrase' => '管理用の合言葉',
     'auth.proceed' => '進む',
+    'auth.show' => '合言葉を表示',
+    'auth.hide' => '合言葉を隠す',
 
     // エラーページ
     'err.notfound_title' => 'ページが見つかりません',
