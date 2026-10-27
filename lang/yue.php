@@ -339,7 +339,7 @@ return [
     'cmp.faster_long' => '喺 50m 池都快咗 %s 秒！',
     'cmp.other_course' => '池嘅長度唔同，只作參考。',
     'fetch.title' => '攞最新紀錄',
-    'fetch.note' => '每次都會檢查速報網站（results.swimmeets.ca）嘅所有比賽，上次之後內容有變而又有 Zorc 選手參加嘅比賽結果會自動匯入同反映。亦會保存出處證據（截圖）。需要幾分鐘。',
+    'fetch.note' => '每次都會檢查速報網站（results.swimmeets.ca）嘅所有比賽，上次之後內容有變而又有本會選手參加嘅比賽結果會自動匯入同反映。亦會保存出處證據（截圖）。需要幾分鐘。',
     'fetch.button' => '攞最新紀錄',
     'fetch.button_again' => '再攞一次',
     'fetch.see_progress' => '睇進度',

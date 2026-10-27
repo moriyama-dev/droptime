@@ -10,7 +10,7 @@ declare(strict_types=1);
  *   php bin/fetch-latest.php --folder 2026hof    その大会フォルダだけ（状態に関係なく）
  *   php bin/fetch-latest.php --no-evidence       出典の証拠（スクショ）を撮らない
  *
- * 取り込むのは、クラブ（config の fetch.club_code、既定 ZORC）の選手が 1 人でも
+ * 取り込むのは、クラブ（config の fetch.club_code。既定は無く、空なら止まる）の選手が 1 人でも
  * 載っている大会の、結果のページだけ。大会前の Psych Sheet は取り込まない。
  * 新しく投入した大会は、そのまま出典の証拠も保存する（ヘッドレス Chrome がある環境だけ）。
  */
@@ -103,6 +103,8 @@ $afterCommit = static function (int $meetId, string $url, string $originals) use
     }
 };
 
+$clubCode = $config->string('fetch.club_code');
+
 $fetcher = new LatestRecordsFetcher(
     Database::instance(),
     new PortalClient(
@@ -111,12 +113,15 @@ $fetcher = new LatestRecordsFetcher(
     ),
     $job->statePath(),
     APP_ROOT . '/var/manual/sources',
-    $config->string('fetch.club_code', 'ZORC'),
+    $clubCode,
     $log,
     $afterCommit(...),
 );
 
 try {
+    if ($clubCode === '') {
+        throw new RuntimeException('config/config.php の fetch.club_code が空です（クラブ名は git に入れず、ここにだけ書く）');
+    }
     $summary = $fetcher->run($onlyFolder);
 } catch (Throwable $e) {
     $log('失敗: ' . $e->getMessage());

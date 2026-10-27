@@ -28,6 +28,7 @@ return [
         Assert::same([], PrivacyRules::findSecrets('1+moriyama-dev@users.noreply.github.com 100.20.3.4'));
         Assert::same([], PrivacyRules::findSecrets("\$2y\$10\$" . str_repeat('x', 53) . ' // privacy-check: allow'));
         Assert::true(PrivacyRules::isPublicEmail('7315004+moriyama-dev@users.noreply.github.com'));
+        Assert::true(PrivacyRules::isPublicEmail('noreply@github.com'), 'GitHub の Web 画面のコミット');
         Assert::false(PrivacyRules::isPublicEmail('someone@gmail.com')); // privacy-check: allow（見本）
     },
     '公開してはいけないパス' => static function (): void {

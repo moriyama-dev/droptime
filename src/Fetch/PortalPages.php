@@ -114,7 +114,7 @@ final class PortalPages
     }
 
     /**
-     * クラブのコード（ZORC など）がチーム欄に現れるか。
+     * クラブのコード（見本の ZORC など）がチーム欄に現れるか。
      * Hy-Tek はチームを「ZORC」や「ZORC-ON」のように、前後を空白で区切って書く。
      */
     public static function mentionsClub(string $html, string $clubCode): bool

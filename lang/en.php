@@ -339,7 +339,7 @@ return [
     'cmp.faster_long' => '%s s faster, even in a 50 m pool!',
     'cmp.other_course' => 'Different pool length, shown for reference.',
     'fetch.title' => 'Fetch latest results',
-    'fetch.note' => 'Checks every meet on the results site (results.swimmeets.ca) each time, and automatically imports results from meets that changed since the last check and where Zorc swimmers competed. Source evidence (screenshots) is saved too. Takes a few minutes.',
+    'fetch.note' => 'Checks every meet on the results site (results.swimmeets.ca) each time, and automatically imports results from meets that changed since the last check and where swimmers from the club competed. Source evidence (screenshots) is saved too. Takes a few minutes.',
     'fetch.button' => 'Fetch latest results',
     'fetch.button_again' => 'Fetch again',
     'fetch.see_progress' => 'See progress',

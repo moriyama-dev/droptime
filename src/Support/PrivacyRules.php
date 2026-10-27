@@ -21,8 +21,8 @@ final class PrivacyRules
     /** 個人の名前を含んでも公開してよい語（GitHub のアカウント名など）。 */
     public const ALLOWED_TERMS = ['moriyama-dev'];
 
-    /** 公開してよいメールアドレス（GitHub の非公開用アドレス・コミットの共著者表記・見本）。 */
-    private const ALLOWED_EMAIL = '/(@users\.noreply\.github\.com|^noreply@anthropic\.com|@example\.(com|org|net))$/i';
+    /** 公開してよいメールアドレス（GitHub の非公開用アドレス・Web 画面のコミット・コミットの共著者表記・見本）。 */
+    private const ALLOWED_EMAIL = '/(@users\.noreply\.github\.com|^noreply@github\.com|^noreply@anthropic\.com|@example\.(com|org|net))$/i';
 
     /** 公開してはいけないパス。var/ は .htaccess と .gitignore だけ許す。 */
     public static function isForbiddenPath(string $path): bool
