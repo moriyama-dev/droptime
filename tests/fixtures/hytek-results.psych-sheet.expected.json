@@ -1,0 +1,150 @@
+{
+    "parser": "hytek-results",
+    "meet": {
+        "name": "2026 Sample Cup",
+        "host": "Zorro Aquatic Club",
+        "start_date": "2026-11-13",
+        "end_date": "2026-11-15",
+        "course": "SCM",
+        "venue": null
+    },
+    "counts": {
+        "events": 2,
+        "entries": 4,
+        "results": 1,
+        "splits": 0,
+        "swimmers": 4,
+        "unrecognized": 0,
+        "warnings": 0
+    },
+    "events": [
+        {
+            "number": "66",
+            "round": "prelim",
+            "gender": "M",
+            "age_group": "13 & Over",
+            "distance": 100,
+            "stroke": "BR",
+            "course": "SCM",
+            "is_relay": false,
+            "scheduled_time": null,
+            "sort_order": 660,
+            "entries": [
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 5855,
+                    "seed_is_ntime": false,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Doe",
+                        "first_name": "John",
+                        "birth_year": null,
+                        "age": 17,
+                        "gender": "M",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "doe john"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 6079,
+                    "seed_is_ntime": false,
+                    "team_code": "ABCD",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Roe",
+                        "first_name": "Richard",
+                        "birth_year": null,
+                        "age": 14,
+                        "gender": "M",
+                        "team_code": "ABCD",
+                        "team_name": null,
+                        "normalized_key": "roe richard"
+                    }
+                },
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": null,
+                    "seed_is_ntime": true,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Poe",
+                        "first_name": "Edgar A",
+                        "birth_year": null,
+                        "age": 13,
+                        "gender": "M",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "poe edgar"
+                    }
+                }
+            ],
+            "results": []
+        },
+        {
+            "number": "13",
+            "round": "timed",
+            "gender": "F",
+            "age_group": "11-12",
+            "distance": 50,
+            "stroke": "FL",
+            "course": "SCM",
+            "is_relay": false,
+            "scheduled_time": null,
+            "sort_order": 135,
+            "entries": [
+                {
+                    "heat": null,
+                    "lane": null,
+                    "seed_time_cs": 3510,
+                    "seed_is_ntime": false,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Doe",
+                        "first_name": "Jane",
+                        "birth_year": null,
+                        "age": 12,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "doe jane"
+                    }
+                }
+            ],
+            "results": [
+                {
+                    "place": 1,
+                    "final_time_cs": 3480,
+                    "status": "OK",
+                    "dq_reason": null,
+                    "points": null,
+                    "heat": null,
+                    "lane": null,
+                    "team_code": "ZORC",
+                    "relay_letter": null,
+                    "swimmer": {
+                        "last_name": "Doe",
+                        "first_name": "Jane",
+                        "birth_year": null,
+                        "age": 12,
+                        "gender": "F",
+                        "team_code": "ZORC",
+                        "team_name": null,
+                        "normalized_key": "doe jane"
+                    },
+                    "splits": []
+                }
+            ]
+        }
+    ],
+    "unrecognized": [],
+    "unrecognized_overflow": 0,
+    "warnings": []
+}

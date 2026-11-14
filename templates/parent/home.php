@@ -8,13 +8,24 @@ use DropTime\Support\Lang;
 use DropTime\Support\View;
 
 /** @var list<array<string, mixed>> $favoriteSwimmers */
-/** @var list<array{meet: array<string, mixed>, entries: list<array<string, mixed>>}> $meetGroups */
+/** @var list<array{meet: array<string, mixed>, entries: list<array<string, mixed>>, is_today: bool, latest: ?array<string, mixed>}> $meetGroups */
 /** @var list<array<string, mixed>> $recentResults */
 /** @var bool $hasMeets */
 /** @var bool $isAdmin */
 /** @var DropTime\Support\View $view */
 $e = static fn (mixed $v): string => View::e($v);
 $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
+
+// カウントダウンの大きな文字。
+$countdown = static function (array $live) use ($t): string {
+    return match (true) {
+        $live['status'] === 'done' => $t('home.cd_done'),
+        $live['status'] === 'running' => $t('home.cd_running'),
+        $live['minutes'] <= 5 => $t('home.cd_soon'),
+        $live['minutes'] >= 60 => $t('home.cd_hours', intdiv($live['minutes'], 60), $live['minutes'] % 60),
+        default => $t('home.cd_minutes', $live['minutes']),
+    };
+};
 ?>
 <h1 class="page-title"><?= $t('home.title') ?></h1>
 
@@ -34,6 +45,17 @@ $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
             <h2 class="meet-block__title">
                 <a href="<?= $view->url('meets.show', ['meet' => (int) $group['meet']['id']]) ?>"><?= $e($group['meet']['name']) ?></a>
             </h2>
+            <?php if ($group['is_today']) : ?>
+                <p class="live-status">
+                    <span class="live-status__badge"><?= $t('home.live_badge') ?></span>
+                    <?php if ($group['latest'] !== null) : ?>
+                        <?= $t('home.live_latest', $group['latest']['event_number'], $group['latest']['time']) ?>
+                    <?php else : ?>
+                        <?= $t('home.live_waiting') ?>
+                    <?php endif; ?>
+                    <span class="live-status__note"><?= $t('home.live_refresh') ?></span>
+                </p>
+            <?php endif; ?>
             <p class="meet-block__meta">
                 <span class="time"><?= $e($group['meet']['start_date']) ?></span>
                 <?php if (!empty($group['meet']['end_date']) && $group['meet']['end_date'] !== $group['meet']['start_date']) : ?>
@@ -45,12 +67,36 @@ $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
             </p>
             <ol class="race-list">
                 <?php foreach ($group['entries'] as $entry) : ?>
+                    <?php $live = $entry['live'] ?? null; $showCountdown = $live !== null && $live['is_today']; ?>
                     <li>
-                        <a class="race-card" href="<?= $view->url('meets.event', ['meet' => (int) $group['meet']['id'], 'event' => (int) $entry['event_id']]) ?>">
+                        <a class="race-card<?= $showCountdown ? ' race-card--live race-card--' . $e($live['status']) : '' ?>" href="<?= $view->url('meets.event', ['meet' => (int) $group['meet']['id'], 'event' => (int) $entry['event_id']]) ?>">
+                            <?php if ($showCountdown) : ?>
+                                <?php
+                                $done = (int) $live['session_done'];
+                                $percent = $live['status'] === 'done' ? 100 : max(4, (int) round(100 * $done / ($done + (int) $live['events_before'] + 1)));
+                                ?>
+                                <div class="countdown">
+                                    <span class="countdown__big"><?= $countdown($live) ?></span>
+                                    <?php if ($live['status'] === 'upcoming') : ?>
+                                        <span class="countdown__sub">
+                                            <?= $t('home.cd_at', $live['time']) ?> ・
+                                            <?= $live['events_before'] === 0 ? $t('home.cd_next') : $t('home.cd_events_before', (int) $live['events_before']) ?>
+                                        </span>
+                                    <?php endif; ?>
+                                    <svg class="countdown__bar" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                                        <rect class="countdown__track" x="0" y="0" width="100" height="6" rx="3"></rect>
+                                        <rect class="countdown__fill" x="0" y="0" width="<?= $percent ?>" height="6" rx="3"></rect>
+                                    </svg>
+                                </div>
+                            <?php endif; ?>
                             <div class="race-card__when">
                                 <?php if ($entry['schedule'] !== null) : ?>
                                     <span class="race-card__time time"><?= $e($entry['schedule']['time']) ?></span>
-                                    <span class="race-card__tag"><?= $entry['schedule']['estimated'] ? $t('common.estimated') : $t('common.scheduled') ?></span>
+                                    <?php if ($live !== null && !$live['is_today']) : ?>
+                                        <span class="race-card__tag"><?= $e(ltrim(substr((string) $live['date'], 5, 2), '0') . '/' . ltrim(substr((string) $live['date'], 8, 2), '0')) ?></span>
+                                    <?php else : ?>
+                                        <span class="race-card__tag"><?= $entry['schedule']['estimated'] ? $t('common.estimated') : $t('common.scheduled') ?></span>
+                                    <?php endif; ?>
                                 <?php else : ?>
                                     <span class="race-card__time time">--:--</span>
                                 <?php endif; ?>

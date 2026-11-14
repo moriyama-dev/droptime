@@ -51,6 +51,82 @@ final class MeetRepository
         );
     }
 
+    /**
+     * 大会のセッション（開始時刻つき）と、その中の種目の並び。カウントダウンの見積もりに使う。
+     *
+     * @return list<array{id: int, code: ?string, date: ?string, start_time: ?string,
+     *                    events: list<array{event_number: string, round: string, distance: int,
+     *                                       heat_count: int, entry_count: int, result_count: int}>}>
+     */
+    public function sessionsOf(int $meetId): array
+    {
+        $sessions = [];
+
+        foreach ($this->db->select(
+            'SELECT id, code, session_date, start_time FROM meet_sessions WHERE meet_id = :meet_id ORDER BY sort_order, id',
+            ['meet_id' => $meetId]
+        ) as $row) {
+            $sessions[(int) $row['id']] = [
+                'id' => (int) $row['id'],
+                'code' => $row['code'] === null ? null : (string) $row['code'],
+                'date' => $row['session_date'] === null ? null : (string) $row['session_date'],
+                'start_time' => $row['start_time'] === null ? null : (string) $row['start_time'],
+                'events' => [],
+            ];
+        }
+
+        if ($sessions === []) {
+            return [];
+        }
+
+        foreach ($this->db->select(
+            'SELECT e.meet_session_id, e.event_number, e.round, e.distance,'
+            . ' (SELECT COUNT(DISTINCT en.heat) FROM entries en WHERE en.event_id = e.id) AS heat_count,'
+            . ' (SELECT COUNT(*) FROM entries en WHERE en.event_id = e.id) AS entry_count,'
+            . ' (SELECT COUNT(*) FROM results r WHERE r.event_id = e.id) AS result_count'
+            . ' FROM events e WHERE e.meet_id = :meet_id AND e.meet_session_id IS NOT NULL'
+            . ' ORDER BY e.meet_session_id, e.session_position',
+            ['meet_id' => $meetId]
+        ) as $row) {
+            $sessionId = (int) $row['meet_session_id'];
+
+            if (!isset($sessions[$sessionId])) {
+                continue;
+            }
+
+            $sessions[$sessionId]['events'][] = [
+                'event_number' => (string) $row['event_number'],
+                'round' => (string) $row['round'],
+                'distance' => (int) $row['distance'],
+                'heat_count' => (int) $row['heat_count'],
+                'entry_count' => (int) $row['entry_count'],
+                'result_count' => (int) $row['result_count'],
+            ];
+        }
+
+        return array_values($sessions);
+    }
+
+    /**
+     * 速報サイトで見つけた、終わった種目とその時刻（本番の cron が書く）。新しい順。
+     *
+     * @return list<array{event_number: string, round: string, finished_at: string}>
+     */
+    public function liveStatusOf(int $meetId): array
+    {
+        return array_map(
+            static fn (array $row): array => [
+                'event_number' => (string) $row['event_number'],
+                'round' => (string) $row['round'],
+                'finished_at' => (string) $row['finished_at'],
+            ],
+            $this->db->select(
+                'SELECT event_number, round, finished_at FROM live_event_status WHERE meet_id = :meet_id ORDER BY finished_at DESC',
+                ['meet_id' => $meetId]
+            )
+        );
+    }
+
     /** @return array<string, mixed>|null */
     public function findEvent(int $meetId, int $eventId): ?array
     {

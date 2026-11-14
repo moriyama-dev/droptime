@@ -11,7 +11,7 @@ declare(strict_types=1);
  *   php bin/fetch-latest.php --no-evidence       出典の証拠（スクショ）を撮らない
  *
  * 取り込むのは、クラブ（config の fetch.club_code。既定は無く、空なら止まる）の選手が 1 人でも
- * 載っている大会の、結果のページだけ。大会前の Psych Sheet は取り込まない。
+ * 載っている大会の、結果のページと、まだ泳いでいない種目の Psych Sheet（エントリーとして）。
  * 新しく投入した大会は、そのまま出典の証拠も保存する（ヘッドレス Chrome がある環境だけ）。
  */
 if (PHP_SAPI !== 'cli') {

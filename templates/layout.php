@@ -52,6 +52,9 @@ $languages = ['en' => 'EN', 'ja' => '日本語', 'yue' => '廣東話'];
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
 <meta name="referrer" content="no-referrer">
+<?php if (isset($refreshSeconds) && is_int($refreshSeconds) && $refreshSeconds > 0) : ?>
+<meta http-equiv="refresh" content="<?= $refreshSeconds ?>">
+<?php endif; ?>
 <meta name="theme-color" content="<?= $e($brand['primary'] ?? '#0b4f6c') ?>">
 <title><?= $e($appName) ?></title>
 <link rel="stylesheet" href="<?= $e($basePath) ?>/assets/app.css?v=<?= $e((string) @filemtime(APP_ROOT . '/public/assets/app.css')) ?>">

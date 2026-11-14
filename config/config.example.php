@@ -90,6 +90,12 @@ return [
         'php_binary' => '/usr/bin/php',
     ],
 
+    // ホームの「次に泳ぐレース」の時刻の見積もり。
+    'schedule' => [
+        // Psych Sheet（組の無いエントリー）から組数を見積もるときのレーン数。
+        'lanes' => 8,
+    ],
+
     'tools' => [
         'pdftotext' => '/usr/bin/pdftotext',
         'mysqldump' => '/usr/bin/mysqldump',

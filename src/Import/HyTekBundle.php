@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DropTime\Import;
 
+use DropTime\Parser\HyTek\HyTekResultsParser;
+
 /**
  * 速報サイトから保存した Hy-Tek のイベントページ一式を、1 つの HTML にまとめる。
  *
@@ -32,10 +34,11 @@ final class HyTekBundle
     }
 
     /**
-     * @param list<string> $files
+     * @param list<string>          $files
+     * @param array<string, string> $roundHints ファイル名（basename）→ round。Psych Sheet の round をパーサーに教える
      * @return array{html: string, pages: int, skipped: int}
      */
-    public static function combine(array $files): array
+    public static function combine(array $files, array $roundHints = []): array
     {
         $extractor = new HtmlTextExtractor();
         $html = "<!-- DropTime: HyTekBundle が結合したページ -->\n<html><body>\n";
@@ -48,6 +51,12 @@ final class HyTekBundle
                 $skipped++; // <pre> の無いページ（メニュー等）は黙って飛ばす
 
                 continue;
+            }
+
+            $hint = $roundHints[basename($file)] ?? null;
+
+            if ($hint !== null) {
+                $text = HyTekResultsParser::ROUND_HINT_PREFIX . $hint . "\n" . $text;
             }
 
             $html .= "<pre>\n" . htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . "\n</pre>\n";

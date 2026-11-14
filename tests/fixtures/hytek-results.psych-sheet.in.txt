@@ -1,0 +1,30 @@
+DropTime round: prelim
+Licensed to Zorro Aquatic Club
+                                  HY-TEK's MEET MANAGER 7.0 11/11/2026 02:22 PM
+                   2026 Sample Cup - 11/13/2026 to 11/15/2026                    
+                                  Psych Sheet                                  
+Event 66  Boys 13 & Over 100 SC Meter Breaststroke
+===============================================================================
+     Name                         Age Team
+===============================================================================
+  1  Doe, John                     17 ZORC                        58.55 
+  2  Roe, Richard                  14 ABCD                      1:00.79 
+  3  Poe, Edgar A                  13 ZORC                           NT 
+DropTime round: timed
+Licensed to Zorro Aquatic Club
+                                  HY-TEK's MEET MANAGER 7.0 11/11/2026 02:22 PM
+                   2026 Sample Cup - 11/13/2026 to 11/15/2026                    
+                                  Psych Sheet                                  
+Event 71  Mixed 13 & Over 200 SC Meter Freestyle Relay
+===============================================================================
+    Team                       Relay                    Seed Time
+===============================================================================
+  1  ZORC                           A                     1:45.10 
+DropTime round: timed
+ Zorro Aquatic Club - Site License              11/13/2026 - 9:43 AM
+              2026 Sample Cup - 11/13/2026 to 11/15/2026              
+ Event 13  Girls 11-12 50 SC Meter Butterfly
+==================================================================
+    Name                  Age Team                 Seed     Finals        
+==================================================================
+  1 Doe, Jane              12 ZORC                35.10      34.80  

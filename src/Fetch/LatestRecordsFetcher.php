@@ -20,8 +20,11 @@ use Throwable;
  *   1. 速報サイトのフォルダ一覧を読み、全部の大会について目次と「最後に終わった種目」の
  *      更新日時を見て、前回から中身が変わったか（または一度も中身を見ていないか）を調べる
  *   2. 変わった大会の種目ページを全部保存する（var/manual/sources/<大会>）
- *   3. 結果のページだけを残し（大会前の Psych Sheet は捨てる）、
- *      クラブ（fetch.club_code）の選手が 1 人でも載っていれば取り込んで DB に投入する
+ *   3. 結果のページと、まだ泳いでいない種目の Psych Sheet（エントリーの一覧）を残し、
+ *      クラブ（fetch.club_code）の選手が 1 人でも載っていれば取り込んで DB に投入する。
+ *      Psych Sheet はエントリー（結果なし）として入り、ホームの「次に泳ぐレース」と
+ *      大会当日のカウントダウンに使う。終わった大会の Psych Sheet だけのものは入れない。
+ *   4. 目次のセッション（開始時刻・日付・種目の並び）を meet_sessions と events に書く（MeetProgram）
  *
  * 手でアップロードしたときは確認画面を経て人が投入するが、ここでは
  * 確認画面を通さずに投入する（管理者がボタンで明示的に頼んだ処理のため）。
@@ -182,8 +185,13 @@ final class LatestRecordsFetcher
             return ['status' => 'not_results', 'note' => '種目ページがまだありません', 'state' => $state];
         }
 
-        if ($meta['start'] !== null && $meta['start'] > $this->today()->format('Y-m-d')) {
-            return ['status' => 'not_results', 'note' => "大会前（{$meta['start']} 開始）。結果が出たら取り込みます", 'state' => $state];
+        $program = MeetProgram::parse($index['body']);
+        $roundOfPage = [];
+
+        foreach ($program as $session) {
+            foreach ($session['events'] as $event) {
+                $roundOfPage[$event['page']] = $event['round'];
+            }
         }
 
         // ── 種目ページを全部保存する ─────────────────────────────
@@ -191,6 +199,7 @@ final class LatestRecordsFetcher
         self::removeDir($work);
         @mkdir($work, 0775, true);
         $resultsFiles = [];
+        $psychFiles = [];
         $clubFound = false;
 
         foreach ($meta['pages'] as $page) {
@@ -205,17 +214,27 @@ final class LatestRecordsFetcher
             if (PortalPages::isResultsPage($response['body'])) {
                 $resultsFiles[] = $work . '/' . $page;
                 $clubFound = $clubFound || PortalPages::mentionsClub($response['body'], $this->clubCode);
+            } elseif (PortalPages::isPsychSheet($response['body'])) {
+                $psychFiles[] = $work . '/' . $page;
+                $clubFound = $clubFound || PortalPages::mentionsClub($response['body'], $this->clubCode);
             }
+        }
+
+        // 終わった大会の Psych Sheet だけ（結果が載らなかった大会）は、これから泳ぐ予定にならないので入れない。
+        $meetEnd = $meta['end'] ?? $meta['start'];
+
+        if ($resultsFiles === [] && $meetEnd !== null && $meetEnd < $this->today()->format('Y-m-d')) {
+            $psychFiles = [];
         }
 
         // 目次も原本として残す（どの種目があったかの証拠になる）。
         file_put_contents($work . '/evtindex.htm', $index['body']);
-        ($this->log)(sprintf('  %d ページ中、結果のページ %d', count($meta['pages']), count($resultsFiles)));
+        ($this->log)(sprintf('  %d ページ中、結果のページ %d・エントリーの一覧（Psych Sheet）%d', count($meta['pages']), count($resultsFiles), count($psychFiles)));
 
-        if ($resultsFiles === []) {
+        if ($resultsFiles === [] && $psychFiles === []) {
             self::removeDir($work);
 
-            return ['status' => 'not_results', 'note' => '結果のページがまだありません（Psych Sheet のみ）', 'state' => $state];
+            return ['status' => 'not_results', 'note' => '結果のページもエントリーの一覧もまだありません', 'state' => $state];
         }
 
         if (!$clubFound) {
@@ -228,24 +247,37 @@ final class LatestRecordsFetcher
         $final = rtrim($this->sourcesDir, '/') . '/' . $name;
         self::removeDir($final);
         rename($work, $final);
-        $resultsFiles = array_map(static fn (string $f): string => $final . '/' . basename($f), $resultsFiles);
+        $files = array_map(static fn (string $f): string => $final . '/' . basename($f), [...$resultsFiles, ...$psychFiles]);
+        sort($files, SORT_STRING);
+        $hints = [];
 
-        $import = $this->importAndCommit($resultsFiles, $name, $url);
+        foreach ($psychFiles as $file) {
+            $page = basename($file);
+            // 目次に無いページは、ファイル名の P（予選）/ F（決勝・タイム決勝）で決める。
+            $hints[$page] = $roundOfPage[$page] ?? (preg_match('/^\d{6}P/i', $page) === 1 ? 'prelim' : 'timed');
+        }
+
+        $import = $this->importAndCommit($files, $name, $url, $hints);
+        $sessions = (new ProgramWriter($this->db))->write($import['meet_id'], $program);
+        ($this->log)(sprintf('  プログラム: セッション %d・種目 %d に時刻の手がかりを付けました', $sessions['sessions'], $sessions['events']));
 
         if ($this->afterCommit !== null) {
             ($this->afterCommit)($import['meet_id'], $url, $final);
         }
 
-        return ['status' => 'imported', 'note' => $import['meet_name'], 'state' => $state + ['meet_id' => $import['meet_id']], 'import' => $import];
+        $note = $import['meet_name'] . ($import['results'] === 0 ? '（エントリーのみ）' : '');
+
+        return ['status' => 'imported', 'note' => $note, 'state' => $state + ['meet_id' => $import['meet_id']], 'import' => $import];
     }
 
     /**
-     * @param list<string> $files 結果のページだけ
-     * @return array{meet_id: int, meet_name: string, import_id: int, is_new: bool, events: int, results: int, pages: int}
+     * @param list<string>          $files 結果のページと Psych Sheet
+     * @param array<string, string> $hints Psych Sheet のページ → round
+     * @return array{meet_id: int, meet_name: string, import_id: int, is_new: bool, events: int, entries: int, results: int, pages: int}
      */
-    private function importAndCommit(array $files, string $folder, string $sourceUrl): array
+    private function importAndCommit(array $files, string $folder, string $sourceUrl, array $hints = []): array
     {
-        $bundle = HyTekBundle::combine($files);
+        $bundle = HyTekBundle::combine($files, $hints);
         $temporary = tempnam(sys_get_temp_dir(), 'hytek');
 
         if ($temporary === false || file_put_contents($temporary, $bundle['html']) === false) {
@@ -269,10 +301,10 @@ final class LatestRecordsFetcher
             throw new ImportException('パースに失敗しました: ' . ($summary['error'] ?? '不明') . "（取り込み #{$id}）");
         }
 
-        if ((int) ($summary['counts']['results'] ?? 0) === 0) {
+        if ((int) ($summary['counts']['results'] ?? 0) === 0 && (int) ($summary['counts']['entries'] ?? 0) === 0) {
             $service->discard($id);
 
-            throw new ImportException("結果を 1 件も読み取れませんでした（取り込み #{$id} は破棄）");
+            throw new ImportException("結果もエントリーも 1 件も読み取れませんでした（取り込み #{$id} は破棄）");
         }
 
         $meet = is_array($summary['meet'] ?? null) ? $summary['meet'] : [];
@@ -303,6 +335,7 @@ final class LatestRecordsFetcher
             'import_id' => $id,
             'is_new' => $existing === null,
             'events' => $stats['events'],
+            'entries' => $stats['entries'],
             'results' => $stats['results'],
             'pages' => $bundle['pages'],
         ];

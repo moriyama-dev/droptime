@@ -22,6 +22,11 @@ use DropTime\Parser\ParseResult;
  * （Prelims/Finals 列）は round の違う別種目として返し、DB 側の
  * (meet, event_number, round) 一意キーに対応させる。
  *
+ * 大会前・当日の未泳の種目は Psych Sheet（"Psych Sheet" の見出しと Name/Age/Team の列だけで、
+ * 1 行に申告タイムが 1 つ）で出る。これはエントリー（結果なし）として読む。Psych Sheet には
+ * 予選か決勝かが書かれていないので、取得側が各ページの前に置く印の行
+ * "DropTime round: prelim" で round を教える（無ければ timed）。
+ *
  * 規則はすべて実データ（results.swimmeets.ca 2025-2026）から起こした。
  * フィクスチャ: tests/fixtures/hytek-results.*
  */
@@ -53,6 +58,15 @@ final class HyTekResultsParser implements ParserInterface
 
     private bool $warnedSwimoff = false;
 
+    /** いま読んでいるページが Psych Sheet か。 */
+    private bool $psychPage = false;
+
+    /** 取得側がページの前に置いた round の印。 */
+    private ?string $roundHint = null;
+
+    /** HyTekBundle がページの前に置く印の行。 */
+    public const ROUND_HINT_PREFIX = 'DropTime round: ';
+
     public function name(): string
     {
         return 'hytek-results';
@@ -68,7 +82,8 @@ final class HyTekResultsParser implements ParserInterface
         $head = substr($text, 0, 20000);
 
         $hasEvent = preg_match('/^\s*\(?Event\s+\d+/m', $head) === 1;
-        $hasColumns = preg_match('/^\s+(Name|Team)\b.*\b(Finals|Prelims)\b/m', $head) === 1;
+        $hasColumns = preg_match('/^\s+(Name|Team)\b.*\b(Finals|Prelims)\b/m', $head) === 1
+            || preg_match('/^\s*Psych Sheet\s*$/m', $head) === 1;
 
         if ($hasEvent && $hasColumns) {
             return 85;
@@ -91,6 +106,8 @@ final class HyTekResultsParser implements ParserInterface
         $this->eventSequence = 0;
         $this->skipUntilEvent = false;
         $this->warnedSwimoff = false;
+        $this->psychPage = false;
+        $this->roundHint = null;
 
         $normalized = str_replace(["\r\n", "\r", "\f"], ["\n", "\n", "\n"], $text);
         $lineNumber = 0;
@@ -113,6 +130,24 @@ final class HyTekResultsParser implements ParserInterface
 
     private function consume(int $number, string $line): void
     {
+        // ページの区切り（取得側が置いた round の印）。次のページが始まる。
+        if (str_starts_with(trim($line), self::ROUND_HINT_PREFIX)) {
+            $hint = trim(substr(trim($line), strlen(self::ROUND_HINT_PREFIX)));
+            $this->roundHint = in_array($hint, ['prelim', 'final', 'timed'], true) ? $hint : null;
+            $this->psychPage = false;
+            $this->note($number, 'ページの印');
+
+            return;
+        }
+
+        if (trim($line) === 'Psych Sheet') {
+            $this->flushPending();
+            $this->psychPage = true;
+            $this->note($number, 'Psych Sheet');
+
+            return;
+        }
+
         // 種目ヘッダーはどの状態からでも最優先で拾う（スキップ状態も解除する）。
         $event = HyTekLine::eventHeader($line);
 
@@ -145,6 +180,14 @@ final class HyTekResultsParser implements ParserInterface
 
         if ($this->skipUntilEvent) {
             $this->note($number, 'チーム得点（無視）');
+
+            return;
+        }
+
+        if ($this->psychPage && $this->context !== null && preg_match('/^\s+Name\s+Age\s+Team\s*$/', $line) === 1) {
+            $this->context['columns'] = ['has_seed' => true, 'has_prelims' => false, 'has_finals' => false, 'has_points' => false, 'psych' => true];
+            $this->context['round'] = $this->roundHint ?? 'timed';
+            $this->note($number, '列見出し（Psych Sheet）');
 
             return;
         }
@@ -193,6 +236,7 @@ final class HyTekResultsParser implements ParserInterface
                 $this->note($number, '無視');
             } elseif (($who = HyTekLine::licensee($line)) !== null) {
                 $this->licensee ??= $who;
+                $this->psychPage = false;
                 $this->note($number, 'ページ情報');
             } else {
                 $this->unrecognized($number, $line);
@@ -203,6 +247,13 @@ final class HyTekResultsParser implements ParserInterface
 
         if ($this->context['skip'] === true) {
             $this->note($number, 'スキップ区間');
+
+            return;
+        }
+
+        if ($this->psychPage && $this->context['header']['is_relay']) {
+            // リレーの Psych Sheet は個人に紐付かないので読まない。
+            $this->note($number, 'リレー（Psych Sheet・無視）');
 
             return;
         }
@@ -251,6 +302,7 @@ final class HyTekResultsParser implements ParserInterface
 
         if (($who = HyTekLine::licensee($line)) !== null) {
             $this->licensee ??= $who;
+            $this->psychPage = false;
             $this->note($number, 'ページ情報');
 
             return;
@@ -339,6 +391,12 @@ final class HyTekResultsParser implements ParserInterface
             return;
         }
 
+        if (($columns['psych'] ?? false) === true) {
+            $this->acceptPsychEntry($number, $row);
+
+            return;
+        }
+
         $parsed = $this->interpretTail($row['tail'], $columns);
 
         if ($parsed === null) {
@@ -384,6 +442,44 @@ final class HyTekResultsParser implements ParserInterface
         ];
 
         $this->note($number, '結果');
+    }
+
+    /**
+     * Psych Sheet の 1 行（順位・名前・年齢・チーム・申告タイム）。結果ではなくエントリーにする。
+     *
+     * @param array<string, mixed> $row
+     */
+    private function acceptPsychEntry(int $number, array $row): void
+    {
+        $seed = count($row['tail']) === 1 ? HyTekLine::seedToken($row['tail'][0]) : null;
+
+        if ($seed === null) {
+            $this->unrecognized($number, implode(' ', [$row['last'] . ',', $row['first'], ...$row['tail']]));
+
+            return;
+        }
+
+        $event = $this->currentEvent();
+
+        $event->addEntry(new ParsedEntry(
+            new ParsedSwimmer(
+                $row['last'],
+                $row['first'],
+                null,
+                $row['age'],
+                $event->gender === 'X' ? null : $event->gender,
+                $row['team'],
+                null,
+            ),
+            null,
+            null,
+            $seed['time_cs'],
+            $seed['is_nt'],
+            $row['team'],
+            null,
+        ));
+
+        $this->note($number, 'エントリー（Psych Sheet）');
     }
 
     /** @param array<string, mixed> $row */

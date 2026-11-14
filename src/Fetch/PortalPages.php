@@ -104,6 +104,12 @@ final class PortalPages
      *
      * 結果の表は見出しに Prelims / Finals の列を持つ（Psych Sheet は Seed の 1 列だけ）。
      */
+    public static function isPsychSheet(string $html): bool
+    {
+        return preg_match('/^\s*Psych\s+Sheet\s*$/mi', $html) === 1
+            && preg_match('/^\s*Event\s+\d+/mi', $html) === 1;
+    }
+
     public static function isResultsPage(string $html): bool
     {
         if (preg_match('/Psych\s+Sheet|Heat\s+Sheet/i', $html) === 1) {

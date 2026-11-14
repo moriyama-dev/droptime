@@ -123,6 +123,23 @@ crontab -l | grep droptime-sync-prod   # 登録の確認
 bin/sync-prod.sh --force               # 今すぐ運ぶ
 ```
 
+### 大会当日のカウントダウンの補正（`bin/live-progress.php`・本番の cron）
+
+本番の cron から 3 分おきに動く。今日が会期中で、誰かのお気に入りの選手が出ている大会だけ、速報サイトの
+「最後に終わった種目」を読み（1 大会 2 通信）、終わった時刻を `live_event_status` に残す。ホームのカウントダウンはこの時刻で補正する。
+時間帯（トロント時間 6〜23 時）の判定はスクリプトの中で行う。`live_event_status` は同期（`transfer-data.php`）の対象外なので、同期で消えない。
+
+```bash
+crontab -l | grep droptime-live         # 登録の確認（本番）
+php bin/live-progress.php --force        # 今すぐ確かめる（結果を画面に出す）
+```
+
+### 最新の記録の自動取得（`bin/fetch-latest.php`・VM の cron）
+
+VM の cron から毎時（トロント時間 7〜21 時）動き、速報サイトの全大会を確かめる。中身が変わった大会だけを読み直す。
+結果に加えて、まだ泳いでいない種目の Psych Sheet もエントリーとして取り込み、目次のセッション（開始時刻・種目の並び）を
+`meet_sessions` と `events.meet_session_id` / `session_position` に書く。取り込んだデータは `sync-prod.sh` が本番へ運ぶ。
+
 ## 8. 障害時
 
 | 症状 | 見る場所 |

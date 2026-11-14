@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DropTime\Http\Controllers;
 
+use DropTime\Domain\LiveSchedule;
 use DropTime\Domain\ScheduleEstimator;
 use DropTime\Http\Controller;
 use DropTime\Http\ProfileSession;
@@ -37,12 +38,15 @@ final class HomeController extends Controller
 
         $upcoming = $favorites->upcomingEntries($profileId, Clock::localToday());
         $meetGroups = $this->groupByMeet($upcoming);
+        $meetDay = array_filter($meetGroups, static fn (array $group): bool => $group['is_today']) !== [];
 
         return $this->view('parent/home', [
             'favoriteSwimmers' => $favoriteSwimmers,
             'meetGroups' => $meetGroups,
             'recentResults' => $favorites->recentResults($profileId, 8),
             'hasMeets' => true,
+            // 大会の当日は、開いている間 1 分おきに表示を新しくする（カウントダウンと速報の補正）。
+            'refreshSeconds' => $meetDay ? 60 : 0,
         ]);
     }
 
@@ -52,13 +56,19 @@ final class HomeController extends Controller
      * 推定は大会プログラム全体（お気に入り以外の種目も含む）の積算で行う。
      * 自分の種目だけを足しても時刻にならないため。
      *
+     * 速報サイトの目次からセッション（開始時刻と種目の並び）が分かっている大会は、
+     * LiveSchedule でセッションごとに見積もり、当日は速報の終わった時刻で補正する。
+     *
      * @param list<array<string, mixed>> $entries
-     * @return list<array{meet: array<string, mixed>, entries: list<array<string, mixed>>}>
+     * @return list<array{meet: array<string, mixed>, entries: list<array<string, mixed>>, is_today: bool, latest: ?array<string, mixed>}>
      */
     private function groupByMeet(array $entries): array
     {
         $meets = new MeetRepository($this->context->db);
         $groups = [];
+        $today = Clock::localToday();
+        $now = Clock::now()->setTimezone(Clock::localZone())->format('Y-m-d H:i:s');
+        $lanes = $this->context->config->int('schedule.lanes', 8);
 
         foreach ($entries as $entry) {
             $meetId = (int) $entry['meet_id'];
@@ -75,6 +85,10 @@ final class HomeController extends Controller
                     $program
                 ));
 
+                $sessions = $meets->sessionsOf($meetId);
+                $live = $sessions === [] ? [] : $meets->liveStatusOf($meetId);
+                $end = (string) ($entry['end_date'] ?? $entry['start_date']);
+
                 $groups[$meetId] = [
                     'meet' => [
                         'id' => $meetId,
@@ -84,16 +98,45 @@ final class HomeController extends Controller
                         'venue' => $entry['venue'],
                     ],
                     'estimates' => $estimates,
+                    'plan' => $sessions === [] ? [] : LiveSchedule::forMeet($sessions, $live, $now, $lanes),
+                    'is_today' => (string) $entry['start_date'] <= $today && $end >= $today,
+                    'latest' => $live === [] ? null : $live[0] + ['time' => substr($live[0]['finished_at'], 11, 5)],
                     'entries' => [],
                 ];
             }
 
             $entry['schedule'] = $groups[$meetId]['estimates'][(int) $entry['event_id']] ?? null;
+            $entry['live'] = null;
+            $plan = $groups[$meetId]['plan'][LiveSchedule::key((string) $entry['event_number'], (string) $entry['round'])] ?? null;
+
+            if ($plan !== null) {
+                $entry['live'] = $plan + [
+                    'date' => substr($plan['start'], 0, 10),
+                    'time' => ltrim(substr($plan['start'], 11, 5), '0'),
+                    'minutes' => LiveSchedule::minutesUntil($plan['start'], $now),
+                    'is_today' => substr($plan['start'], 0, 10) === $today,
+                ];
+                $entry['schedule'] = ['time' => $entry['live']['time'], 'estimated' => true];
+            }
+
+            // 泳ぎ終わった種目は「最近の結果」に出るので、「次に泳ぐレース」には並べない。
+            if (($entry['live']['status'] ?? null) === LiveSchedule::DONE) {
+                continue;
+            }
+
             $groups[$meetId]['entries'][] = $entry;
         }
 
+        $groups = array_filter($groups, static fn (array $group): bool => $group['entries'] !== []);
+
         return array_values(array_map(static function (array $group): array {
-            unset($group['estimates']);
+            unset($group['estimates'], $group['plan']);
+
+            // セッションの見積もりがある大会は、見積もりの開始時刻の順に並べる（並行するセッションが混ざるため）。
+            usort($group['entries'], static fn (array $a, array $b): int => strcmp(
+                (string) ($a['live']['start'] ?? ''),
+                (string) ($b['live']['start'] ?? '')
+            ));
 
             return $group;
         }, $groups));
