@@ -2644,3 +2644,15 @@ button.topbar__switch {
 .race-card--running .countdown__fill {
     fill: var(--dt-gold);
 }
+
+/* 大会当日のホーム: この大会の泳ぎ（成績タブの比較カードを流用） */
+.meet-swims {
+    margin-bottom: 18px;
+}
+
+.meet-swims__more {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--dt-accent, #00c2a8);
+    font-weight: 700;
+}

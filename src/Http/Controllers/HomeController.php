@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace DropTime\Http\Controllers;
 
+use DropTime\Domain\LatestComparison;
 use DropTime\Domain\LiveSchedule;
+use DropTime\Domain\Progression;
 use DropTime\Domain\ScheduleEstimator;
 use DropTime\Http\Controller;
 use DropTime\Http\ProfileSession;
@@ -12,6 +14,7 @@ use DropTime\Http\Request;
 use DropTime\Http\Response;
 use DropTime\Repository\FavoriteRepository;
 use DropTime\Repository\MeetRepository;
+use DropTime\Repository\SwimmerRepository;
 use DropTime\Support\Clock;
 
 /**
@@ -20,6 +23,9 @@ use DropTime\Support\Clock;
  */
 final class HomeController extends Controller
 {
+    /** 「この大会の泳ぎ」に並べる数（残りは成績タブで見る）。 */
+    private const MEET_SWIMS_SHOWN = 3;
+
     public function index(Request $request): Response
     {
         $favorites = new FavoriteRepository($this->context->db);
@@ -31,6 +37,7 @@ final class HomeController extends Controller
             return $this->view('parent/home', [
                 'favoriteSwimmers' => [],
                 'meetGroups' => [],
+                'meetSwims' => [],
                 'recentResults' => [],
                 'hasMeets' => $this->hasAnyMeet(),
             ]);
@@ -38,11 +45,13 @@ final class HomeController extends Controller
 
         $upcoming = $favorites->upcomingEntries($profileId, Clock::localToday());
         $meetGroups = $this->groupByMeet($upcoming);
-        $meetDay = array_filter($meetGroups, static fn (array $group): bool => $group['is_today']) !== [];
+        $meetSwims = $this->meetSwims($favoriteSwimmers);
+        $meetDay = $meetSwims !== [] || array_filter($meetGroups, static fn (array $group): bool => $group['is_today']) !== [];
 
         return $this->view('parent/home', [
             'favoriteSwimmers' => $favoriteSwimmers,
             'meetGroups' => $meetGroups,
+            'meetSwims' => $meetSwims,
             'recentResults' => $favorites->recentResults($profileId, 8),
             'hasMeets' => true,
             // 大会の当日は、開いている間 1 分おきに表示を新しくする（カウントダウンと速報の補正）。
@@ -140,6 +149,53 @@ final class HomeController extends Controller
 
             return $group;
         }, $groups));
+    }
+
+    /**
+     * 大会の会期中、お気に入りの選手がその大会で泳いだ結果と「1 つ前」の比較（成績タブの ① と同じ）。
+     * 結果が入るとホームのいちばん上に出る。縮めた種目が先に並ぶ。
+     *
+     * @param list<array<string, mixed>> $favoriteSwimmers
+     * @return list<array{swimmer: array<string, mixed>, comparison: array<string, mixed>, more: int}>
+     */
+    private function meetSwims(array $favoriteSwimmers): array
+    {
+        $today = Clock::localToday();
+        $meetIds = array_map('intval', array_column($this->context->db->select(
+            'SELECT id FROM meets WHERE start_date <= :today AND COALESCE(end_date, start_date) >= :today2',
+            ['today' => $today, 'today2' => $today]
+        ), 'id'));
+
+        if ($meetIds === []) {
+            return [];
+        }
+
+        $swimmers = new SwimmerRepository($this->context->db);
+        $cards = [];
+
+        foreach ($favoriteSwimmers as $favorite) {
+            $results = $swimmers->resultsOf((int) $favorite['id']);
+            $shapes = null;
+
+            foreach ($meetIds as $meetId) {
+                if (!in_array($meetId, array_map('intval', array_column($results, 'meet_id')), true)) {
+                    continue;
+                }
+
+                $shapes ??= Progression::build($results);
+                $comparison = LatestComparison::of($shapes, $meetId);
+
+                if ($comparison === null || $comparison['races'] === []) {
+                    continue;
+                }
+
+                $more = max(0, count($comparison['races']) - self::MEET_SWIMS_SHOWN);
+                $comparison['races'] = array_slice($comparison['races'], 0, self::MEET_SWIMS_SHOWN);
+                $cards[] = ['swimmer' => $favorite, 'comparison' => $comparison, 'more' => $more];
+            }
+        }
+
+        return $cards;
     }
 
     private function hasAnyMeet(): bool

@@ -9,6 +9,7 @@ use DropTime\Support\View;
 
 /** @var list<array<string, mixed>> $favoriteSwimmers */
 /** @var list<array{meet: array<string, mixed>, entries: list<array<string, mixed>>, is_today: bool, latest: ?array<string, mixed>}> $meetGroups */
+/** @var list<array{swimmer: array<string, mixed>, comparison: array<string, mixed>, more: int}> $meetSwims */
 /** @var list<array<string, mixed>> $recentResults */
 /** @var bool $hasMeets */
 /** @var bool $isAdmin */
@@ -27,6 +28,19 @@ $countdown = static function (array $live) use ($t): string {
     };
 };
 ?>
+<?php foreach ($meetSwims as $card) : ?>
+    <section class="section meet-swims" aria-label="<?= $t('home.swims_title', (string) $card['swimmer']['full_name']) ?>">
+        <h2 class="section__title"><?= $t('home.swims_title', (string) $card['swimmer']['full_name']) ?></h2>
+        <p class="scores-meet"><?= $e($card['comparison']['meet_name']) ?></p>
+        <?php foreach ($card['comparison']['races'] as $race) : ?>
+            <?= $view->partial('parent/_cmp-card', ['race' => $race]) ?>
+        <?php endforeach; ?>
+        <a class="meet-swims__more" href="<?= $view->url('scores.show', ['swimmer' => (int) $card['swimmer']['id']]) ?>">
+            <?= $card['more'] > 0 ? $t('home.swims_more', (int) $card['more']) : $t('home.swims_all') ?>
+        </a>
+    </section>
+<?php endforeach; ?>
+
 <h1 class="page-title"><?= $t('home.title') ?></h1>
 
 <?php if ($favoriteSwimmers === []) : ?>
