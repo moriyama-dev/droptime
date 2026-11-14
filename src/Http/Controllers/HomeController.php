@@ -174,7 +174,8 @@ final class HomeController extends Controller
         $cards = [];
 
         foreach ($favoriteSwimmers as $favorite) {
-            $results = $swimmers->resultsOf((int) $favorite['id']);
+            // 正式な取り込みを待たずに、本番が速報サイトから直接読んだ結果も足す。
+            $results = [...$swimmers->resultsOf((int) $favorite['id']), ...$swimmers->liveResultsOf((int) $favorite['id'])];
             $shapes = null;
 
             foreach ($meetIds as $meetId) {

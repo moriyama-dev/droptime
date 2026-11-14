@@ -9,7 +9,8 @@ declare(strict_types=1);
  *   php bin/live-progress.php --force   時間帯（6〜23 時）に関係なく確かめる（動作確認用）
  *
  * 速報サイトの「最後に終わった種目」を読み、その種目が終わった時刻を live_event_status に残す。
- * 1 大会につき通信は 2 回。見張る大会が無ければ通信しない（DB を 1 回見るだけ）。
+ * お気に入りの選手が泳ぎ終わった種目は、そのページも読んで結果を live_results に置く。
+ * 1 大会につき通信は 2 回（＋泳ぎ終わった種目のページ 1 回ずつ）。見張る大会が無ければ通信しない（DB を 1 回見るだけ）。
  * ログは読めなかったとき（と --force のとき）だけ var/logs/live-progress.log に書く。
  *
  * cron の例（サーバーの時刻帯に関係なく、時間帯の判定はトロント時間で行う）:
@@ -68,7 +69,7 @@ foreach ($meets as $meet) {
     }
 
     $line = $result['event'] !== null
-        ? sprintf('大会 %d: 種目 %s（%s）は %s に終了', $meet['id'], $result['event'], $result['round'], $result['finished_at'])
+        ? sprintf('大会 %d: 種目 %s（%s）は %s に終了・お気に入りの選手の結果 %d 件を置きました', $meet['id'], $result['event'], $result['round'], $result['finished_at'], $result['results'] ?? 0)
         : sprintf('大会 %d: %s', $meet['id'], $result['note']);
 
     if ($force) {

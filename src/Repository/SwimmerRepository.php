@@ -75,6 +75,28 @@ final class SwimmerRepository
     }
 
     /**
+     * 大会当日に本番が速報サイトから直接読んだ結果（live_results）のうち、正式な結果（results）に
+     * まだ無いもの。resultsOf() と同じ形で返す（ホームの「この大会の泳ぎ」で足し合わせる）。
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function liveResultsOf(int $swimmerId): array
+    {
+        return $this->db->select(
+            'SELECT NULL AS result_id, lr.final_time_cs, lr.place, lr.status, NULL AS dq_reason, NULL AS heat, NULL AS lane, lr.age,'
+            . ' e.id AS event_id, e.event_number, e.round, e.gender, e.distance, e.stroke, e.course, e.is_relay, e.age_group, e.sort_order,'
+            . ' m.id AS meet_id, m.name AS meet_name, m.start_date'
+            . ' FROM live_results lr'
+            . ' JOIN events e ON e.meet_id = lr.meet_id AND e.event_number = lr.event_number AND e.round = lr.round'
+            . ' JOIN meets m ON m.id = e.meet_id'
+            . ' WHERE lr.swimmer_id = :swimmer_id'
+            . ' AND NOT EXISTS (SELECT 1 FROM results r WHERE r.event_id = e.id AND r.swimmer_id = lr.swimmer_id)'
+            . ' ORDER BY m.start_date DESC, e.sort_order DESC',
+            ['swimmer_id' => $swimmerId]
+        );
+    }
+
+    /**
      * 指定した種目に出た全員の結果。順位を数え直すのに使う。
      *
      * 1 種目あたり最大でも 150 行ほど（実データの最大は 133 人）なので、
