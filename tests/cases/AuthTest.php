@@ -48,4 +48,23 @@ return [
         Assert::false(Auth::isParent());
         Assert::false(Auth::isAdmin());
     },
+    '管理者は最後の操作から 8 時間を過ぎると管理権限だけが外れる' => static function (): void {
+        $_SESSION = [];
+        Auth::configureAdminIdle(8 * 3600);
+        Auth::grantParent();
+        Auth::grantAdmin(1_000_000);
+        Assert::true(Auth::isAdmin(1_000_000 + 8 * 3600));
+        // 上の確認で最後の操作時刻が延びている
+        Assert::true(Auth::isAdmin(1_000_000 + 16 * 3600));
+        Assert::false(Auth::isAdmin(1_000_000 + 24 * 3600 + 1));
+        Assert::false(Auth::isAdmin(1_000_000 + 24 * 3600 + 2));
+        Assert::true(Auth::isParent());
+        $_SESSION = [];
+    },
+    '最後の操作時刻が無い古いセッションの管理権限は外す' => static function (): void {
+        $_SESSION = ['auth.admin' => true, 'auth.parent' => true];
+        Assert::false(Auth::isAdmin());
+        Assert::true(Auth::isParent());
+        $_SESSION = [];
+    },
 ];

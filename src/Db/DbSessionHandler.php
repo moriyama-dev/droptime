@@ -13,7 +13,7 @@ use SessionUpdateTimestampHandlerInterface;
  * セッションを MySQL に保存する。
  *
  * PHP 既定のファイルセッションは session.gc_maxlifetime と共有ホスティングの
- * /tmp 掃除に左右されるため、90 日の保持を約束できない。保持期間を自分で
+ * /tmp 掃除に左右されるため、長期間（既定 365 日）の保持を約束できない。保持期間を自分で
  * 制御するために DB に置く。
  */
 final class DbSessionHandler implements SessionHandlerInterface, SessionUpdateTimestampHandlerInterface, SessionIdInterface

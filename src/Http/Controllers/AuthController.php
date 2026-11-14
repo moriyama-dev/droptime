@@ -8,8 +8,10 @@ use DropTime\Http\Auth;
 use DropTime\Http\Controller;
 use DropTime\Http\HttpException;
 use DropTime\Http\LoginThrottle;
+use DropTime\Http\ProfileSession;
 use DropTime\Http\Request;
 use DropTime\Http\Response;
+use DropTime\Repository\FavoriteRepository;
 use DropTime\Support\Lang;
 
 /**
@@ -90,7 +92,22 @@ final class AuthController extends Controller
             return Response::redirect($this->context->config->string('app.base_path', '') . $next);
         }
 
+        // まだ選手を 1 人も登録していなければ、ホームではなく選手を探す画面へ直接案内する。
+        if (!$this->hasFavorites()) {
+            return $this->redirectToRoute('favorites');
+        }
+
         return $this->redirectToRoute('home');
+    }
+
+    /** この端末（またはセッション）のお気に入りが 1 人以上いるか。 */
+    private function hasFavorites(): bool
+    {
+        $favorites = new FavoriteRepository($this->context->db);
+        ProfileSession::restore($favorites);
+        $profileId = ProfileSession::currentId();
+
+        return $profileId !== null && $favorites->favoritesOf($profileId) !== [];
     }
 
     /**

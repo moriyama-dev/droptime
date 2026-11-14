@@ -206,9 +206,10 @@ final class Kernel
             return;
         }
 
-        $lifetime = $config->int('auth.session_days', 90) * 86400;
+        $lifetime = $config->int('auth.session_days', 365) * 86400;
+        Auth::configureAdminIdle($config->int('auth.admin_idle_hours', 8) * 3600);
 
-        // セッションは MySQL に保存する。ファイルセッションでは 90 日保持できない。
+        // セッションは MySQL に保存する。ファイルセッションでは長期間（既定 365 日）保持できない。
         $handler = new DbSessionHandler(Database::instance(), $lifetime);
         session_set_save_handler($handler, true);
 
@@ -233,7 +234,7 @@ final class Kernel
 
         session_start();
 
-        // 有効期限を毎回延長し、90 日の窓をスライドさせる。
+        // 有効期限を毎回延長し、保持期間の窓をスライドさせる（開くたびに延びる）。
         if (session_id() !== '') {
             setcookie(session_name() ?: 'dt_session', session_id(), [
                 'expires' => Clock::timestamp() + $lifetime,

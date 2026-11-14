@@ -29,8 +29,10 @@ return [
         'password_hash' => '',
         // 管理画面用の別合言葉のハッシュ。空文字なら管理画面は完全に無効化される。
         'admin_password_hash' => '',
-        // ログイン状態の保持日数。
-        'session_days' => 90,
+        // ログイン状態の保持日数。開くたびに延びる。
+        'session_days' => 365,
+        // 管理画面は最後の操作からこの時間で切れる（保護者のログインは残る）。
+        'admin_idle_hours' => 8,
         // ブルートフォース対策：window_minutes 分の間に max_attempts 回失敗したら
         // lock_minutes 分ロックする。
         'lockout' => [
