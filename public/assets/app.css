@@ -2656,3 +2656,179 @@ button.topbar__switch {
     color: var(--dt-accent, #00c2a8);
     font-weight: 700;
 }
+
+/* ── 今日の出番（ホーム上部・templates/parent/_today-window.php） ───────────── */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.today-card {
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: var(--dt-radius);
+    background: linear-gradient(135deg, var(--dt-surface-raised), var(--dt-surface));
+    border: 1px solid var(--dt-accent);
+}
+
+.today-card__name {
+    margin: 0;
+    font-weight: 700;
+}
+
+.today-card__range {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    margin: 2px 0 6px;
+}
+
+.today-card__time {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--dt-accent);
+}
+
+.today-card__dash {
+    font-size: 1.6rem;
+    color: var(--dt-text-muted);
+}
+
+.today-card__count {
+    color: var(--dt-text-muted);
+    font-size: 0.95rem;
+}
+
+.today-card__bar {
+    display: block;
+    width: 100%;
+    height: 28px;
+    overflow: visible;
+}
+
+.today-card__track { fill: var(--dt-border); }
+
+.today-card__stay {
+    fill: var(--dt-accent);
+    opacity: 0.45;
+    transform-box: fill-box;
+    transform-origin: left center;
+    animation: today-stay 0.9s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.today-card__race {
+    fill: var(--dt-gold);
+    stroke: var(--dt-bg);
+    stroke-width: 0.8;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: today-pop 0.45s cubic-bezier(.3, 1.6, .5, 1) 0.7s both;
+}
+
+.today-card__race--done { fill: var(--dt-text-muted); }
+
+.today-card__now {
+    stroke: var(--dt-text);
+    stroke-width: 0.6;
+    stroke-dasharray: 1.5 1.2;
+    vector-effect: non-scaling-stroke;
+}
+
+.today-card__axis {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 8px;
+    color: var(--dt-text-muted);
+    font-size: 0.8rem;
+}
+
+.today-card__events {
+    margin: 0;
+    display: grid;
+    gap: 4px;
+}
+
+.today-card__events div {
+    display: grid;
+    grid-template-columns: 4.5em 1fr;
+    gap: 8px;
+}
+
+.today-card__events dt {
+    color: var(--dt-text-muted);
+    font-size: 0.9rem;
+}
+
+.today-card__events dd { margin: 0; }
+
+.today-card__note {
+    margin: 10px 0 0;
+    color: var(--dt-text-muted);
+    font-size: 0.85rem;
+}
+
+@keyframes today-stay {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+@keyframes today-pop {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+/* ── 携帯で使う（ホーム下部・templates/parent/_app-setup.php） ───────────── */
+
+.app-setup__card {
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: var(--dt-radius);
+    background: var(--dt-surface);
+    border: 1px solid var(--dt-border);
+}
+
+.app-setup__lead { margin: 0 0 10px; }
+
+.app-setup__help {
+    margin: 0;
+    color: var(--dt-text-muted);
+}
+
+.app-setup__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.app-setup__button { gap: 8px; }
+
+.app-setup__icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.app-setup__state {
+    margin: 0 0 10px;
+    font-weight: 700;
+}
+
+.app-setup__state--on { color: var(--dt-accent); }
+.app-setup__state--denied,
+.app-setup__state--unsupported { color: var(--dt-text-muted); font-weight: 400; }
+
+.app-setup__message {
+    margin: 8px 0 0;
+    color: var(--dt-text-muted);
+    font-size: 0.9rem;
+    min-height: 1.2em;
+}
+
+[hidden] { display: none !important; }

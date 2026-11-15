@@ -8,6 +8,7 @@ use DropTime\Http\Controllers\AuthController;
 use DropTime\Http\Controllers\FavoritesController;
 use DropTime\Http\Controllers\HomeController;
 use DropTime\Http\Controllers\MeetController;
+use DropTime\Http\Controllers\PushController;
 use DropTime\Http\Controllers\PwaController;
 use DropTime\Http\Controllers\ScoreController;
 use DropTime\Http\Controllers\SourceController;
@@ -49,6 +50,11 @@ return [
     ['POST', '/favorites/forget', [FavoritesController::class, 'forget'], Access::PARENT, 'favorites.forget'],
 
     // PWA。ログイン前でも読めるが、含まれるのはアプリ名だけ。
+    // 携帯への通知（Web Push）の購読。public/assets/app.js から呼ぶ。
+    ['POST', '/push/subscribe', [PushController::class, 'subscribe'], Access::PARENT, 'push.subscribe'],
+    ['POST', '/push/unsubscribe', [PushController::class, 'unsubscribe'], Access::PARENT, 'push.unsubscribe'],
+    ['POST', '/push/test', [PushController::class, 'test'], Access::PARENT, 'push.test'],
+
     ['GET', '/manifest.json', [PwaController::class, 'manifest'], Access::PUBLIC, 'manifest'],
 
     ['GET', '/login', [AuthController::class, 'form'], Access::PUBLIC, 'login'],

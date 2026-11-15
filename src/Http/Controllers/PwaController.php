@@ -21,11 +21,14 @@ final class PwaController extends Controller
         $name = $config->string('app.name', 'DropTime');
 
         $manifest = [
+            'id' => ($base ?: '') . '/',
             'name' => $name,
             'short_name' => $name,
             'start_url' => ($base ?: '') . '/',
             'scope' => ($base ?: '') . '/',
             'display' => 'standalone',
+            'orientation' => 'portrait',
+            'description' => 'Swim meet times and progress for parents and swimmers.',
             'background_color' => '#0d1b24',
             'theme_color' => $config->string('ui.brand.primary', '#0b4f6c'),
             'icons' => [

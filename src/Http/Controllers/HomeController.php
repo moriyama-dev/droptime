@@ -7,13 +7,13 @@ namespace DropTime\Http\Controllers;
 use DropTime\Domain\LatestComparison;
 use DropTime\Domain\LiveSchedule;
 use DropTime\Domain\Progression;
-use DropTime\Domain\ScheduleEstimator;
 use DropTime\Http\Controller;
 use DropTime\Http\ProfileSession;
 use DropTime\Http\Request;
 use DropTime\Http\Response;
+use DropTime\Push\WebPush;
 use DropTime\Repository\FavoriteRepository;
-use DropTime\Repository\MeetRepository;
+use DropTime\Repository\RacePlanRepository;
 use DropTime\Repository\SwimmerRepository;
 use DropTime\Support\Clock;
 
@@ -38,13 +38,19 @@ final class HomeController extends Controller
                 'favoriteSwimmers' => [],
                 'meetGroups' => [],
                 'meetSwims' => [],
+                'todayWindows' => [],
                 'recentResults' => [],
                 'hasMeets' => $this->hasAnyMeet(),
+                'vapidPublic' => $this->vapidPublic(),
             ]);
         }
 
-        $upcoming = $favorites->upcomingEntries($profileId, Clock::localToday());
-        $meetGroups = $this->groupByMeet($upcoming);
+        $today = Clock::localToday();
+        $now = Clock::now()->setTimezone(Clock::localZone())->format('Y-m-d H:i:s');
+        $planner = new RacePlanRepository($this->context->db, $this->context->config->int('schedule.lanes', 8));
+        $planned = $planner->plan($favorites->upcomingEntries($profileId, $today), $today, $now);
+        $todayWindows = RacePlanRepository::todayWindows($planned);
+        $meetGroups = $this->withoutFinished($planned);
         $meetSwims = $this->meetSwims($favoriteSwimmers);
         $meetDay = $meetSwims !== [] || array_filter($meetGroups, static fn (array $group): bool => $group['is_today']) !== [];
 
@@ -52,103 +58,37 @@ final class HomeController extends Controller
             'favoriteSwimmers' => $favoriteSwimmers,
             'meetGroups' => $meetGroups,
             'meetSwims' => $meetSwims,
+            'todayWindows' => $todayWindows,
             'recentResults' => $favorites->recentResults($profileId, 8),
             'hasMeets' => true,
+            'vapidPublic' => $this->vapidPublic(),
             // 大会の当日は、開いている間 1 分おきに表示を新しくする（カウントダウンと速報の補正）。
             'refreshSeconds' => $meetDay ? 60 : 0,
         ]);
     }
 
     /**
-     * エントリーを大会ごとにまとめ、推定開始時刻を付ける。
+     * 泳ぎ終わった種目は「最近の結果」に出るので、「次に泳ぐレース」には並べない。
      *
-     * 推定は大会プログラム全体（お気に入り以外の種目も含む）の積算で行う。
-     * 自分の種目だけを足しても時刻にならないため。
-     *
-     * 速報サイトの目次からセッション（開始時刻と種目の並び）が分かっている大会は、
-     * LiveSchedule でセッションごとに見積もり、当日は速報の終わった時刻で補正する。
-     *
-     * @param list<array<string, mixed>> $entries
-     * @return list<array{meet: array<string, mixed>, entries: list<array<string, mixed>>, is_today: bool, latest: ?array<string, mixed>}>
+     * @param list<array<string, mixed>> $groups
+     * @return list<array<string, mixed>>
      */
-    private function groupByMeet(array $entries): array
+    private function withoutFinished(array $groups): array
     {
-        $meets = new MeetRepository($this->context->db);
-        $groups = [];
-        $today = Clock::localToday();
-        $now = Clock::now()->setTimezone(Clock::localZone())->format('Y-m-d H:i:s');
-        $lanes = $this->context->config->int('schedule.lanes', 8);
+        $kept = [];
 
-        foreach ($entries as $entry) {
-            $meetId = (int) $entry['meet_id'];
-
-            if (!isset($groups[$meetId])) {
-                $program = $meets->programOf($meetId);
-                $estimates = ScheduleEstimator::estimate(array_map(
-                    static fn (array $event): array => [
-                        'id' => (int) $event['id'],
-                        'distance' => (int) $event['distance'],
-                        'heats' => (int) $event['heat_count'],
-                        'scheduled_time' => is_string($event['scheduled_time']) ? $event['scheduled_time'] : null,
-                    ],
-                    $program
-                ));
-
-                $sessions = $meets->sessionsOf($meetId);
-                $live = $sessions === [] ? [] : $meets->liveStatusOf($meetId);
-                $end = (string) ($entry['end_date'] ?? $entry['start_date']);
-
-                $groups[$meetId] = [
-                    'meet' => [
-                        'id' => $meetId,
-                        'name' => $entry['meet_name'],
-                        'start_date' => $entry['start_date'],
-                        'end_date' => $entry['end_date'],
-                        'venue' => $entry['venue'],
-                    ],
-                    'estimates' => $estimates,
-                    'plan' => $sessions === [] ? [] : LiveSchedule::forMeet($sessions, $live, $now, $lanes),
-                    'is_today' => (string) $entry['start_date'] <= $today && $end >= $today,
-                    'latest' => $live === [] ? null : $live[0] + ['time' => substr($live[0]['finished_at'], 11, 5)],
-                    'entries' => [],
-                ];
-            }
-
-            $entry['schedule'] = $groups[$meetId]['estimates'][(int) $entry['event_id']] ?? null;
-            $entry['live'] = null;
-            $plan = $groups[$meetId]['plan'][LiveSchedule::key((string) $entry['event_number'], (string) $entry['round'])] ?? null;
-
-            if ($plan !== null) {
-                $entry['live'] = $plan + [
-                    'date' => substr($plan['start'], 0, 10),
-                    'time' => ltrim(substr($plan['start'], 11, 5), '0'),
-                    'minutes' => LiveSchedule::minutesUntil($plan['start'], $now),
-                    'is_today' => substr($plan['start'], 0, 10) === $today,
-                ];
-                $entry['schedule'] = ['time' => $entry['live']['time'], 'estimated' => true];
-            }
-
-            // 泳ぎ終わった種目は「最近の結果」に出るので、「次に泳ぐレース」には並べない。
-            if (($entry['live']['status'] ?? null) === LiveSchedule::DONE) {
-                continue;
-            }
-
-            $groups[$meetId]['entries'][] = $entry;
-        }
-
-        $groups = array_filter($groups, static fn (array $group): bool => $group['entries'] !== []);
-
-        return array_values(array_map(static function (array $group): array {
-            unset($group['estimates'], $group['plan']);
-
-            // セッションの見積もりがある大会は、見積もりの開始時刻の順に並べる（並行するセッションが混ざるため）。
-            usort($group['entries'], static fn (array $a, array $b): int => strcmp(
-                (string) ($a['live']['start'] ?? ''),
-                (string) ($b['live']['start'] ?? '')
+        foreach ($groups as $group) {
+            $group['entries'] = array_values(array_filter(
+                $group['entries'],
+                static fn (array $entry): bool => ($entry['live']['status'] ?? null) !== LiveSchedule::DONE
             ));
 
-            return $group;
-        }, $groups));
+            if ($group['entries'] !== []) {
+                $kept[] = $group;
+            }
+        }
+
+        return $kept;
     }
 
     /**
@@ -197,6 +137,22 @@ final class HomeController extends Controller
         }
 
         return $cards;
+    }
+
+    /** 通知の購読に使う公開鍵。設定が無ければ空（通知の欄を出さない）。 */
+    private function vapidPublic(): string
+    {
+        $pem = $this->context->config->string('push.vapid_private', '');
+
+        if ($pem === '') {
+            return '';
+        }
+
+        try {
+            return (new WebPush($pem, ''))->publicKey();
+        } catch (\Throwable) {
+            return '';
+        }
     }
 
     private function hasAnyMeet(): bool

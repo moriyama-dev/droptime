@@ -11,6 +11,8 @@ use DropTime\Support\View;
 /** @var list<array{meet: array<string, mixed>, entries: list<array<string, mixed>>, is_today: bool, latest: ?array<string, mixed>}> $meetGroups */
 /** @var list<array{swimmer: array<string, mixed>, comparison: array<string, mixed>, more: int}> $meetSwims */
 /** @var list<array<string, mixed>> $recentResults */
+/** @var list<array<string, mixed>> $todayWindows */
+/** @var string $vapidPublic */
 /** @var bool $hasMeets */
 /** @var bool $isAdmin */
 /** @var DropTime\Support\View $view */
@@ -40,6 +42,10 @@ $countdown = static function (array $live) use ($t): string {
         </a>
     </section>
 <?php endforeach; ?>
+
+<?php if ($todayWindows !== []) : ?>
+    <?= $view->partial('parent/_today-window', ['todayWindows' => $todayWindows]) ?>
+<?php endif; ?>
 
 <h1 class="page-title"><?= $t('home.title') ?></h1>
 
@@ -187,6 +193,8 @@ $countdown = static function (array $live) use ($t): string {
         </ul>
     </section>
 <?php endif; ?>
+
+<?= $view->partial('parent/_app-setup', ['vapidPublic' => $vapidPublic]) ?>
 
 <nav class="footer-nav">
     <a class="footer-nav__link" href="<?= $view->url('sources') ?>"><?= $t('src.title') ?></a>

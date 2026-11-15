@@ -46,7 +46,7 @@ $langUrl = static function (string $code) use ($basePath, $currentPath, $current
 $languages = ['en' => 'EN', 'ja' => '日本語', 'yue' => '廣東話'];
 ?>
 <!doctype html>
-<html lang="<?= $e(Lang::htmlLang()) ?>">
+<html lang="<?= $e(Lang::htmlLang()) ?>" data-base="<?= $e($basePath) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
