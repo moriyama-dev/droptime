@@ -56,7 +56,10 @@ final class MeetRepository
      *
      * @return list<array{id: int, code: ?string, date: ?string, start_time: ?string,
      *                    events: list<array{event_number: string, round: string, distance: int,
-     *                                       heat_count: int, entry_count: int, result_count: int}>}>
+     *                                       heat_count: int, entry_count: int, result_count: int,
+     *                                       times: list<array{heat: ?int, cs: ?int}>}>}>
+     *         times は所要時間の見積もりに使うタイム。エントリータイム（タイムなしは null）、
+     *         エントリーの無い種目（決勝など）は結果のタイム。
      */
     public function sessionsOf(int $meetId): array
     {
@@ -79,8 +82,35 @@ final class MeetRepository
             return [];
         }
 
+        $times = [];
+
         foreach ($this->db->select(
-            'SELECT e.meet_session_id, e.event_number, e.round, e.distance,'
+            'SELECT en.event_id, en.heat, en.seed_time_cs, en.seed_is_ntime FROM entries en'
+            . ' JOIN events e ON e.id = en.event_id'
+            . ' WHERE e.meet_id = :meet_id AND e.meet_session_id IS NOT NULL',
+            ['meet_id' => $meetId]
+        ) as $row) {
+            $times[(int) $row['event_id']][] = [
+                'heat' => $row['heat'] === null ? null : (int) $row['heat'],
+                'cs' => (int) $row['seed_is_ntime'] === 1 || $row['seed_time_cs'] === null ? null : (int) $row['seed_time_cs'],
+            ];
+        }
+
+        foreach ($this->db->select(
+            'SELECT r.event_id, r.heat, r.final_time_cs FROM results r'
+            . ' JOIN events e ON e.id = r.event_id'
+            . ' WHERE e.meet_id = :meet_id AND e.meet_session_id IS NOT NULL'
+            . ' AND NOT EXISTS (SELECT 1 FROM entries en WHERE en.event_id = e.id)',
+            ['meet_id' => $meetId]
+        ) as $row) {
+            $times[(int) $row['event_id']][] = [
+                'heat' => $row['heat'] === null ? null : (int) $row['heat'],
+                'cs' => $row['final_time_cs'] === null ? null : (int) $row['final_time_cs'],
+            ];
+        }
+
+        foreach ($this->db->select(
+            'SELECT e.id, e.meet_session_id, e.event_number, e.round, e.distance,'
             . ' (SELECT COUNT(DISTINCT en.heat) FROM entries en WHERE en.event_id = e.id) AS heat_count,'
             . ' (SELECT COUNT(*) FROM entries en WHERE en.event_id = e.id) AS entry_count,'
             . ' (SELECT COUNT(*) FROM results r WHERE r.event_id = e.id) AS result_count'
@@ -101,6 +131,7 @@ final class MeetRepository
                 'heat_count' => (int) $row['heat_count'],
                 'entry_count' => (int) $row['entry_count'],
                 'result_count' => (int) $row['result_count'],
+                'times' => $times[(int) $row['id']] ?? [],
             ];
         }
 

@@ -5,34 +5,37 @@ declare(strict_types=1);
 namespace DropTime\Domain;
 
 /**
- * 「次に泳ぐレース」に出す推定開始時刻。
+ * 「次に泳ぐレース」に出す推定開始時刻と、種目 1 件の所要時間の見積もり。
  *
- * ヒートシートに時刻の記載があればそれを優先し、無い種目は
- * 「直近の判明時刻 + そこからの種目ごとの所要時間の積算」で概算する。
- * 指示書のとおり正確さは求めない。画面には「推定」と明示する。
+ * 所要時間の考え方（2026-11 の NYAC Cup の実際の進み方で確かめた）:
+ *   - 1 組にかかる時間 = その組でいちばん遅い選手のタイム + 組の入れ替え（約 50 秒）。
+ *   - 組はエントリータイムの順に分けられるので、エントリータイムを遅い順に並べてレーン数ずつ区切れば、
+ *     組ごとの「いちばん遅い選手」が分かる。タイムなし（NT）はいちばん遅い組に入るとみなす。
+ *   - エントリータイムが 1 つも無い種目だけ、距離からの概算に落とす。
+ *
+ * 正確さは求めない。画面には「推定」と明示する。
  */
 final class ScheduleEstimator
 {
     /** 何も分からないときに置く 1 日の開始時刻。 */
     private const DEFAULT_START = '09:00';
 
-    /** ヒートの入れ替えにかかる固定分（秒）。 */
-    private const HEAT_OVERHEAD_SECONDS = 50;
+    /** 組の入れ替え（退水・次の組の入場・スタートの合図まで）にかかる秒。実測は 40〜60 秒。 */
+    public const HEAT_TURNOVER_SECONDS = 50;
 
-    /** 泳ぎそのものの概算（秒/メートル）。子供の大会想定でゆっくりめに見る。 */
-    private const SECONDS_PER_METER = 1.1;
-
-    /** 種目の切り替え（アナウンス等）の固定分（秒）。 */
-    private const EVENT_OVERHEAD_SECONDS = 60;
+    /** エントリータイムとして信じる範囲（秒/メートル）。入力の誤りで見積もりが飛ばないようにする。 */
+    private const MIN_PACE = 0.4;
+    private const MAX_PACE = 2.0;
 
     /**
      * 種目ごとの推定開始時刻を返す。
      *
-     * @param list<array{id: int, distance: int, heats: int, scheduled_time: ?string}> $events
-     *        sort_order 順に並んだ種目。heats は組数（エントリーが無ければ 0）。
+     * @param list<array{id: int, distance: int, heats: int, scheduled_time: ?string, entries?: int}> $events
+     *        sort_order 順に並んだ種目。heats は組数（組が分からなければ 0）。
+     *        entries は人数（組が分からないとき、レーン数で割って組数を見積もる）。
      * @return array<int, array{time: string, estimated: bool}> 種目 ID => 時刻
      */
-    public static function estimate(array $events, ?string $sessionStart = null): array
+    public static function estimate(array $events, ?string $sessionStart = null, int $lanes = 8): array
     {
         $result = [];
         $cursor = self::toSeconds($sessionStart ?? self::DEFAULT_START);
@@ -48,13 +51,14 @@ final class ScheduleEstimator
                 $result[$event['id']] = ['time' => self::toTime($cursor), 'estimated' => true];
             }
 
-            $cursor += self::durationSeconds($event['distance'], $event['heats']);
+            $heats = $event['heats'] > 0 ? $event['heats'] : (int) ceil(($event['entries'] ?? 0) / max(1, $lanes));
+            $cursor += self::durationSeconds($event['distance'], $heats);
         }
 
         return $result;
     }
 
-    /** 種目 1 件の所要時間（秒）。 */
+    /** エントリータイムが分からないときの、種目 1 件の所要時間（秒）。 */
     public static function durationSeconds(int $distance, int $heats): int
     {
         if ($heats <= 0) {
@@ -62,9 +66,71 @@ final class ScheduleEstimator
             $heats = 1;
         }
 
-        $perHeat = self::HEAT_OVERHEAD_SECONDS + (int) round($distance * self::SECONDS_PER_METER);
+        return $heats * (self::HEAT_TURNOVER_SECONDS + self::fallbackSwimSeconds($distance));
+    }
 
-        return $heats * $perHeat + self::EVENT_OVERHEAD_SECONDS;
+    /**
+     * エントリータイム（無ければ結果のタイム）から、種目 1 件の所要時間（秒）を見積もる。
+     *
+     * @param list<array{heat: ?int, cs: ?int}> $times 1 人（1 チーム）ごと。cs はセンチ秒、タイムなしは null
+     * @param int $lanes 組が分からないときに区切るレーン数
+     */
+    public static function durationFromTimes(int $distance, array $times, int $lanes = 8): int
+    {
+        if ($times === []) {
+            return self::durationSeconds($distance, 1);
+        }
+
+        $min = $distance * self::MIN_PACE;
+        $max = $distance * self::MAX_PACE;
+        $known = [];
+
+        foreach ($times as $time) {
+            if ($time['cs'] !== null && $time['cs'] > 0) {
+                $known[] = min($max, max($min, $time['cs'] / 100));
+            }
+        }
+
+        // タイムなしの選手は、その種目でいちばん遅い選手と同じだけかかるとみなす。
+        $slowest = $known === [] ? (float) self::fallbackSwimSeconds($distance) : max($known);
+        $seconds = [];
+        $byHeat = [];
+        $heatsKnown = true;
+
+        foreach ($times as $time) {
+            $value = $time['cs'] !== null && $time['cs'] > 0 ? min($max, max($min, $time['cs'] / 100)) : $slowest;
+            $seconds[] = $value;
+
+            if ($time['heat'] === null) {
+                $heatsKnown = false;
+            } else {
+                $byHeat[$time['heat']] = max($byHeat[$time['heat']] ?? 0.0, $value);
+            }
+        }
+
+        if (!$heatsKnown) {
+            // 組が分からない（Psych Sheet）: 遅い順に並べてレーン数ずつ区切る。
+            rsort($seconds);
+            $byHeat = [];
+
+            for ($i = 0, $n = count($seconds), $step = max(1, $lanes); $i < $n; $i += $step) {
+                $byHeat[] = $seconds[$i];
+            }
+        }
+
+        return (int) round(array_sum($byHeat) + count($byHeat) * self::HEAT_TURNOVER_SECONDS);
+    }
+
+    /** タイムが分からない組の、いちばん遅い選手の概算（秒）。年代別大会の実測に合わせた。 */
+    private static function fallbackSwimSeconds(int $distance): int
+    {
+        $pace = match (true) {
+            $distance <= 100 => 0.85,
+            $distance <= 200 => 0.8,
+            default => 0.75,
+        };
+
+        return (int) round($distance * $pace);
     }
 
     private static function isTime(string $value): bool

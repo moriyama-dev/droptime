@@ -52,10 +52,11 @@ final class RacePlanRepository
                         'id' => (int) $event['id'],
                         'distance' => (int) $event['distance'],
                         'heats' => (int) $event['heat_count'],
+                        'entries' => (int) $event['entry_count'],
                         'scheduled_time' => is_string($event['scheduled_time']) ? $event['scheduled_time'] : null,
                     ],
                     $program
-                ));
+                ), null, $this->lanes);
 
                 $sessions = $meets->sessionsOf($meetId);
                 $live = $sessions === [] ? [] : $meets->liveStatusOf($meetId);

@@ -17,8 +17,13 @@ use DateTimeZone;
  *   - 終わった種目（速報サイトに結果が出た種目）の、結果のページに印字された時刻を「その種目が終わった時刻」とし、
  *     そこから先の見積もりを積み上げ直す（遅れていれば後ろへ、早ければ前へずれる）。
  *   - あとの種目が終わっていれば、それより前の種目も終わっている（結果の掲載が抜けても並びで分かる）。
- *   - 見積もりの開始時刻を過ぎても終わっていない種目は「泳いでいる最中」とし、
- *     少なくとも今から 1 分は続くとみなして、あとの種目を後ろへずらす。
+ *   - この大会がこれまで「見積もりの何倍の時間で進んだか」（ペース）を、終わった時刻から出し、
+ *     まだ泳いでいない種目の所要時間に掛ける。レーン数の思い違い・棄権の多さ・進行の速さ遅さを、これで吸収する。
+ *   - 見積もりの終了時刻を過ぎても結果が出ない種目は、掲載の遅れぶん（数分）は待ち、
+ *     それを超えたら遅れているとみなして後ろへずらす。ただしずらすのは一定の幅まで。
+ *     結果が掲載されないだけのときに、見積もりが際限なく遅くなる（出番を逃す向きの誤り）のを防ぐ。
+ *   - 同じ日の前のセッションが押していると実際の進み具合から分かるときは、
+ *     次のセッションはウォームアップの時間を空けてから始まるとみなす。
  *
  * 時刻はすべて現地（America/Toronto）の壁時計の文字列 'Y-m-d H:i:s' で受け渡す。
  * ここでは計算の都合で UTC として秒に直すだけで、タイムゾーンの変換はしない。
@@ -29,13 +34,28 @@ final class LiveSchedule
     public const RUNNING = 'running';
     public const UPCOMING = 'upcoming';
 
-    /** 泳いでいる最中の種目は、少なくともあとこれだけ続くとみなす（秒）。 */
-    private const RUNNING_MIN_REMAINING = 60;
+    /** 終わっても、結果が速報サイトに載るまでこれくらいはかかるとみなす（秒）。 */
+    private const POSTING_LAG = 300;
+
+    /** 結果が出ないとき、後ろへずらす幅の上限（秒）。 */
+    private const MAX_UNCONFIRMED_DELAY = 1200;
+
+    /** 前のセッションが終わってから次のセッションが始まるまでに、最低限空く時間（ウォームアップ。秒）。 */
+    private const MIN_SESSION_GAP = 1800;
+
+    /** ペースを出すのに必要な、終わった種目の見積もりの合計（秒）。セッション 1 つぶんと、大会の合計。 */
+    private const PACE_MIN_SESSION = 1200;
+    private const PACE_MIN_TOTAL = 1800;
+
+    /** ペースの範囲。印字の時刻の乱れで見積もりが飛ばないようにする。 */
+    private const PACE_MIN = 0.7;
+    private const PACE_MAX = 1.4;
 
     /**
      * @param list<array{date: ?string, start_time: ?string,
-     *                   events: list<array{key: string, distance: int, heats: int, done: bool, finished_at: ?string}>}> $sessions
-     *        events はセッション内の並び順。finished_at は終わった時刻（分かれば）
+     *                   events: list<array{key: string, distance: int, heats: int, done: bool, finished_at: ?string, duration?: int}>}> $sessions
+     *        events はセッション内の並び順。finished_at は終わった時刻（分かれば）。
+     *        duration は所要時間の見積もり（秒）。無ければ距離と組数から出す
      * @param string $now 現地の今 'Y-m-d H:i:s'
      * @return array<string, array{start: string, status: string, events_before: int, session_done: int, corrected: bool}>
      *         種目のキー → 見積もりの開始時刻・状態・その種目の前に残っている種目の数・
@@ -45,12 +65,31 @@ final class LiveSchedule
     {
         $nowTs = self::ts($now);
         $result = [];
+        $prepared = [];
 
         foreach ($sessions as $session) {
             if ($session['date'] === null || $session['start_time'] === null || $session['events'] === []) {
                 continue;
             }
 
+            $prepared[] = [
+                'date' => $session['date'],
+                'scheduled' => self::ts($session['date'] . ' ' . $session['start_time'] . ':00'),
+                'events' => $session['events'],
+                'durations' => array_map(
+                    static fn (array $event): int => $event['duration'] ?? ScheduleEstimator::durationSeconds($event['distance'], $event['heats']),
+                    $session['events']
+                ),
+            ];
+        }
+
+        // 前のセッションの終わりを次のセッションに伝えるので、始まる順に見る。
+        usort($prepared, static fn (array $a, array $b): int => $a['scheduled'] <=> $b['scheduled']);
+
+        $pace = self::pace($prepared, $nowTs);
+        $ended = [];
+
+        foreach ($prepared as $session) {
             $events = $session['events'];
             $lastDone = -1;
 
@@ -60,12 +99,22 @@ final class LiveSchedule
                 }
             }
 
-            $cursor = self::ts($session['date'] . ' ' . $session['start_time'] . ':00');
-            $corrected = false;
+            $cursor = $session['scheduled'];
+            $corrected = $pace !== 1.0;
+
+            // 前のセッションの押し。進み具合が実際に分かっているセッションだけを根拠にする
+            //（見積もりだけで次のセッションまで遅らせると、見積もりの誤りが重なるため）。
+            foreach ($ended as $earlier) {
+                if ($earlier['confirmed'] && $earlier['date'] === $session['date'] && $earlier['scheduled'] < $session['scheduled']
+                    && $earlier['end'] + self::MIN_SESSION_GAP > $cursor) {
+                    $cursor = $earlier['end'] + self::MIN_SESSION_GAP;
+                    $corrected = true;
+                }
+            }
 
             foreach ($events as $index => $event) {
                 $start = $cursor;
-                $duration = ScheduleEstimator::durationSeconds($event['distance'], $event['heats']);
+                $duration = (int) round($session['durations'][$index] * $pace);
 
                 if ($index <= $lastDone) {
                     if ($event['finished_at'] !== null) {
@@ -77,9 +126,15 @@ final class LiveSchedule
                     }
 
                     $status = self::DONE;
-                } elseif ($index === $lastDone + 1 && $nowTs >= $start) {
-                    $cursor = max($start + $duration, $nowTs + self::RUNNING_MIN_REMAINING);
-                    $corrected = $corrected || $cursor !== $start + $duration;
+                } elseif ($nowTs >= $start) {
+                    $cursor = $start + $duration;
+                    $overdue = $nowTs - $cursor - self::POSTING_LAG;
+
+                    if ($index === $lastDone + 1 && $overdue > 0) {
+                        $cursor += min($overdue, self::MAX_UNCONFIRMED_DELAY);
+                        $corrected = true;
+                    }
+
                     $status = self::RUNNING;
                 } else {
                     $cursor = $start + $duration;
@@ -94,19 +149,64 @@ final class LiveSchedule
                     'corrected' => $corrected,
                 ];
             }
+
+            $ended[] = ['date' => $session['date'], 'scheduled' => $session['scheduled'], 'end' => $cursor, 'confirmed' => $lastDone >= 0];
         }
 
         return $result;
     }
 
     /**
+     * この大会が、見積もりの何倍の時間で進んでいるか。
+     *
+     * セッションごとに「開始から、終わった時刻が分かっている最後の種目まで」の実際の時間と見積もりを比べ、合計の比を取る。
+     * 種目ごとではなくセッションの通算で比べるのは、結果がまとめて掲載されると 1 種目ずつの時刻は当てにならないため。
+     * 材料が少ないうちは 1.0（補正なし）。
+     *
+     * @param list<array{scheduled: int, events: list<array<string, mixed>>, durations: list<int>}> $prepared
+     */
+    private static function pace(array $prepared, int $nowTs): float
+    {
+        $actual = 0;
+        $model = 0;
+
+        foreach ($prepared as $session) {
+            $elapsed = 0;
+            $sum = 0;
+            $upTo = 0;
+
+            foreach ($session['events'] as $index => $event) {
+                $sum += $session['durations'][$index];
+
+                if ($event['finished_at'] !== null && self::ts($event['finished_at']) <= $nowTs) {
+                    $elapsed = self::ts($event['finished_at']) - $session['scheduled'];
+                    $upTo = $sum;
+                }
+            }
+
+            if ($elapsed > 0 && $upTo >= self::PACE_MIN_SESSION) {
+                $actual += $elapsed;
+                $model += $upTo;
+            }
+        }
+
+        if ($model < self::PACE_MIN_TOTAL) {
+            return 1.0;
+        }
+
+        return min(self::PACE_MAX, max(self::PACE_MIN, $actual / $model));
+    }
+
+    /**
      * DB の形（MeetRepository::sessionsOf / liveStatusOf）から見積もる。
      *
-     * 組数はヒートシートの組があればそれを、無ければ（Psych Sheet）人数をレーン数で割って見積もる。
+     * 所要時間はエントリータイムから見積もる（ScheduleEstimator::durationFromTimes）。
+     * 組はヒートシートの組があればそれを、無ければ（Psych Sheet）レーン数で区切る。
      * 結果が入っている種目は終わっているとみなす。
      *
      * @param list<array{date: ?string, start_time: ?string, events: list<array{event_number: string, round: string,
-     *                    distance: int, heat_count: int, entry_count: int, result_count: int}>}> $sessions
+     *                    distance: int, heat_count: int, entry_count: int, result_count: int,
+     *                    times?: list<array{heat: ?int, cs: ?int}>}>}> $sessions
      * @param list<array{event_number: string, round: string, finished_at: string}> $live
      * @return array<string, array{start: string, status: string, events_before: int, session_done: int, corrected: bool}>
      */
@@ -132,6 +232,9 @@ final class LiveSchedule
                     'key' => $key,
                     'distance' => $event['distance'],
                     'heats' => max($event['heat_count'], (int) ceil($swimmers / $lanes)),
+                    'duration' => ($event['times'] ?? []) === []
+                        ? ScheduleEstimator::durationSeconds($event['distance'], max($event['heat_count'], (int) ceil($swimmers / $lanes)))
+                        : ScheduleEstimator::durationFromTimes($event['distance'], $event['times'], $lanes),
                     'done' => $event['result_count'] > 0,
                     'finished_at' => $finished[$key] ?? null,
                 ];
