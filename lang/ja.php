@@ -8,8 +8,8 @@ declare(strict_types=1);
 return [
     // ナビゲーション・共通
     'nav.skip' => '本文へ移動',
-    'nav.next' => '次のレース',
-    'nav.meets' => '大会',
+    'nav.next' => 'スケジュール',
+    'nav.meets' => '履歴',
     'nav.scores' => '成績',
     'nav.favorites' => 'お気に入り',
     'nav.language' => '言語',
@@ -48,16 +48,12 @@ return [
     'err.error_body' => 'しばらくしてからもう一度お試しください。',
 
     // ホーム（次に泳ぐレース）
-    'home.title' => '次に泳ぐレース',
+    'home.title' => 'スケジュール',
     'home.hero_lead' => 'お子さんをお気に入りに登録すると、次に泳ぐレースがここに出ます。',
     'home.hero_cta' => '選手をさがす',
     'home.hero_note' => 'まだ大会データがありません。取り込みが済むと選手を検索できるようになります。',
     'home.no_upcoming' => 'この先の大会エントリーはまだありません。ヒートシートが取り込まれるとここに出ます。',
     'home.footnote' => '時刻は大会の進行表の開始時刻と種目ごとの所要時間から見積もっています。大会の当日は、速報サイトで種目が終わった時刻に合わせて数分おきに直します。',
-    'home.recent' => '最近の結果',
-    'home.swims_title' => '%s のこの大会の泳ぎ',
-    'home.swims_more' => 'ほかの %d 種目と、これまでの記録を見る',
-    'home.swims_all' => 'これまでの記録を見る',
     'home.live_badge' => '大会当日',
     'home.live_latest' => '速報：種目 %s が %s に終わりました。',
     'home.live_waiting' => '速報：まだ終わった種目はありません。',
@@ -72,7 +68,7 @@ return [
     'home.cd_events_before' => '前に %d 種目',
 
     // 大会一覧・プログラム
-    'meets.title' => '大会',
+    'meets.title' => '大会の履歴',
     'meets.badge_results' => '結果あり',
     'meets.badge_entries' => 'エントリー',
     'meet.none' => 'プログラムはまだ取り込まれていません。',

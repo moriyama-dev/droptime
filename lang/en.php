@@ -7,8 +7,8 @@ declare(strict_types=1);
  */
 return [
     'nav.skip' => 'Skip to content',
-    'nav.next' => 'Next races',
-    'nav.meets' => 'Meets',
+    'nav.next' => 'Schedule',
+    'nav.meets' => 'History',
     'nav.scores' => 'Scores',
     'nav.favorites' => 'Favourites',
     'nav.language' => 'Language',
@@ -44,16 +44,12 @@ return [
     'err.error_title' => 'Something went wrong',
     'err.error_body' => 'Please try again in a moment.',
 
-    'home.title' => 'Next races',
+    'home.title' => 'Schedule',
     'home.hero_lead' => 'Add your swimmer to your favourites and their next races will show up here.',
     'home.hero_cta' => 'Find a swimmer',
     'home.hero_note' => 'No meet data yet. Once results are imported you will be able to search for swimmers.',
     'home.no_upcoming' => 'No upcoming entries yet. They will appear here once a heat sheet is imported.',
     'home.footnote' => 'Times are estimated from the session start times and how long each event takes. On meet day they are corrected every few minutes using when events finish on the live results site.',
-    'home.recent' => 'Recent results',
-    'home.swims_title' => '%s at this meet',
-    'home.swims_more' => 'See %d more events and past results',
-    'home.swims_all' => 'See past results',
     'home.live_badge' => 'Meet day',
     'home.live_latest' => 'Live: event %s finished at %s.',
     'home.live_waiting' => 'Live: no events have finished yet.',
@@ -67,7 +63,7 @@ return [
     'home.cd_next' => 'next event',
     'home.cd_events_before' => '%d events before',
 
-    'meets.title' => 'Meets',
+    'meets.title' => 'History',
     'meets.badge_results' => 'Results',
     'meets.badge_entries' => 'Entries',
     'meet.none' => 'No program imported yet.',

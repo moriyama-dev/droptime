@@ -109,13 +109,13 @@ $languages = ['en' => 'EN', 'ja' => '日本語', 'yue' => '廣東話'];
             <svg class="tabbar__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17c1.5 0 1.5-1.2 3.3-1.2S9.2 17 11 17s1.9-1.2 3.7-1.2S16.5 17 18.3 17 20 15.8 20 15.8V18c-1.5 0-1.7 1-3.4 1-1.8 0-1.9-1-3.7-1s-1.8 1-3.6 1c-1.7 0-1.9-1-3.3-1zm9.5-11.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0zM4 13.5s2.8-4.7 5.2-6.4c1.5-1 3 .7 2 2-1 1.4-3.1 3-3.1 3s1.4.8 2.9.8c2 0 2.6-1.4 4.5-1.4v2.3c-1.7 0-1.9 1.1-3.7 1.1s-1.9-1.1-3.7-1.1S6 15 4 13.5z"/></svg>
             <span><?= $t('nav.next') ?></span>
         </a>
-        <a class="tabbar__link<?= $active('/meets') ?>" href="<?= $e($basePath) ?>/meets">
-            <svg class="tabbar__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm1 2v12h12V6H6zm2 3h8v2H8V9zm0 4h5v2H8v-2z"/></svg>
-            <span><?= $t('nav.meets') ?></span>
-        </a>
         <a class="tabbar__link<?= $active('/scores') ?>" href="<?= $e($basePath) ?>/scores">
             <svg class="tabbar__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h6v14H9V6zM3 11h6v9H3v-9zm12 3h6v6h-6v-6z"/></svg>
             <span><?= $t('nav.scores') ?></span>
+        </a>
+        <a class="tabbar__link<?= $active('/meets') ?>" href="<?= $e($basePath) ?>/meets">
+            <svg class="tabbar__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm1 2v12h12V6H6zm2 3h8v2H8V9zm0 4h5v2H8v-2z"/></svg>
+            <span><?= $t('nav.meets') ?></span>
         </a>
         <a class="tabbar__link<?= $active('/favorites') ?><?= $active('/swimmers') ?>" href="<?= $e($basePath) ?>/favorites">
             <svg class="tabbar__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3 4.8 13a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6L12 20.3z"/></svg>

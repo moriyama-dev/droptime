@@ -7,8 +7,8 @@ declare(strict_types=1);
  */
 return [
     'nav.skip' => '跳至內容',
-    'nav.next' => '下場比賽',
-    'nav.meets' => '比賽',
+    'nav.next' => '賽程',
+    'nav.meets' => '紀錄',
     'nav.scores' => '成績',
     'nav.favorites' => '我的最愛',
     'nav.language' => '語言',
@@ -44,16 +44,12 @@ return [
     'err.error_title' => '出咗啲問題',
     'err.error_body' => '請過一陣再試。',
 
-    'home.title' => '下場比賽',
+    'home.title' => '賽程',
     'home.hero_lead' => '將你嘅小朋友加入最愛，佢哋嘅下場比賽就會喺呢度顯示。',
     'home.hero_cta' => '搵運動員',
     'home.hero_note' => '仲未有比賽資料。匯入成績之後就可以搵運動員。',
     'home.no_upcoming' => '暫時未有之後嘅報名項目。匯入咗出賽表就會喺呢度顯示。',
     'home.footnote' => '時間係根據比賽程序嘅開始時間同每個項目所需時間估算。比賽當日會每幾分鐘按即時成績網站上項目完成嘅時間調整。',
-    'home.recent' => '最近成績',
-    'home.swims_title' => '%s 喺呢個比賽嘅表現',
-    'home.swims_more' => '睇埋其他 %d 個項目同以前嘅成績',
-    'home.swims_all' => '睇以前嘅成績',
     'home.live_badge' => '比賽日',
     'home.live_latest' => '即時：第 %s 項喺 %s 完咗。',
     'home.live_waiting' => '即時：暫時未有項目完咗。',
@@ -67,7 +63,7 @@ return [
     'home.cd_next' => '下一個項目',
     'home.cd_events_before' => '前面仲有 %d 個項目',
 
-    'meets.title' => '比賽',
+    'meets.title' => '比賽紀錄',
     'meets.badge_results' => '有成績',
     'meets.badge_entries' => '報名',
     'meet.none' => '仲未匯入項目表。',

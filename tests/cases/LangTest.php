@@ -19,14 +19,14 @@ return [
     },
     '訳文の取得と埋め込み' => static function (): void {
         Lang::init('ja');
-        Assert::same('大会', Lang::t('meets.title'));
+        Assert::same('大会の履歴', Lang::t('meets.title'));
         Assert::same('第 3 組', Lang::t('event.heat_n', 3));
 
         Lang::init('en');
-        Assert::same('Meets', Lang::t('meets.title'));
+        Assert::same('History', Lang::t('meets.title'));
 
         Lang::init('yue');
-        Assert::same('比賽', Lang::t('meets.title'));
+        Assert::same('比賽紀錄', Lang::t('meets.title'));
 
         Lang::init('ja');
     },

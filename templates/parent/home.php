@@ -9,8 +9,6 @@ use DropTime\Support\View;
 
 /** @var list<array<string, mixed>> $favoriteSwimmers */
 /** @var list<array{meet: array<string, mixed>, entries: list<array<string, mixed>>, is_today: bool, latest: ?array<string, mixed>}> $meetGroups */
-/** @var list<array{swimmer: array<string, mixed>, comparison: array<string, mixed>, more: int}> $meetSwims */
-/** @var list<array<string, mixed>> $recentResults */
 /** @var list<array<string, mixed>> $todayWindows */
 /** @var string $vapidPublic */
 /** @var bool $hasMeets */
@@ -30,19 +28,6 @@ $countdown = static function (array $live) use ($t): string {
     };
 };
 ?>
-<?php foreach ($meetSwims as $card) : ?>
-    <section class="section meet-swims" aria-label="<?= $t('home.swims_title', (string) $card['swimmer']['full_name']) ?>">
-        <h2 class="section__title"><?= $t('home.swims_title', (string) $card['swimmer']['full_name']) ?></h2>
-        <p class="scores-meet"><?= $e($card['comparison']['meet_name']) ?></p>
-        <?php foreach ($card['comparison']['races'] as $race) : ?>
-            <?= $view->partial('parent/_cmp-card', ['race' => $race]) ?>
-        <?php endforeach; ?>
-        <a class="meet-swims__more" href="<?= $view->url('scores.show', ['swimmer' => (int) $card['swimmer']['id']]) ?>">
-            <?= $card['more'] > 0 ? $t('home.swims_more', (int) $card['more']) : $t('home.swims_all') ?>
-        </a>
-    </section>
-<?php endforeach; ?>
-
 <?php if ($todayWindows !== []) : ?>
     <?= $view->partial('parent/_today-window', ['todayWindows' => $todayWindows]) ?>
 <?php endif; ?>
@@ -147,51 +132,6 @@ $countdown = static function (array $live) use ($t): string {
         </section>
     <?php endforeach; ?>
     <p class="footnote"><?= $t('home.footnote') ?></p>
-<?php endif; ?>
-
-<?php if ($favoriteSwimmers !== []) : ?>
-    <ul class="quick-links">
-        <?php foreach ($favoriteSwimmers as $favorite) : ?>
-            <li class="quick-card">
-                <span class="quick-card__name"><?= $e($favorite['full_name']) ?></span>
-                <span class="quick-card__actions">
-                    <a class="quick-card__link" href="<?= $view->url('scores.show', ['swimmer' => (int) $favorite['id']]) ?>"><?= $t('scores.view_meets') ?></a>
-                    <a class="quick-card__link" href="<?= $view->url('scores.club', ['swimmer' => (int) $favorite['id']]) ?>"><?= $t('scores.view_club') ?></a>
-                </span>
-            </li>
-        <?php endforeach; ?>
-    </ul>
-<?php endif; ?>
-
-<?php if ($recentResults !== []) : ?>
-    <?php $showNames = count($favoriteSwimmers) > 1; ?>
-    <section class="section">
-        <h2 class="section__title"><?= $t('home.recent') ?></h2>
-        <ul class="result-list">
-            <?php foreach ($recentResults as $result) : ?>
-                <li>
-                    <a class="result-row" href="<?= $view->url('meets.event', ['meet' => (int) $result['meet_id'], 'event' => (int) $result['event_id']]) ?>">
-                        <span class="result-row__main">
-                            <?php if ($showNames) : ?>
-                                <span class="result-row__swimmer"><?= $e($result['swimmer_name']) ?></span>
-                            <?php endif; ?>
-                            <span class="result-row__event"><?= $e(EventTitle::of($result)) ?> ・ <?= $e($result['meet_name']) ?></span>
-                        </span>
-                        <span class="result-row__end">
-                            <?php if ($result['status'] !== 'OK') : ?>
-                                <span class="result-row__status"><?= $e($result['status']) ?></span>
-                            <?php else : ?>
-                                <span class="result-row__time time"><?= $e(SwimTime::format((int) $result['final_time_cs'])) ?></span>
-                                <?php if ($result['place'] !== null) : ?>
-                                    <span class="result-row__place"><?= $t('common.place', (int) $result['place']) ?></span>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                        </span>
-                    </a>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-    </section>
 <?php endif; ?>
 
 <?= $view->partial('parent/_app-setup', ['vapidPublic' => $vapidPublic]) ?>
