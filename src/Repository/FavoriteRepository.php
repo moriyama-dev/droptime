@@ -128,6 +128,9 @@ final class FavoriteRepository
         }
     }
 
+    /** お気に入りの上限（config の favorites.max）。設定が無ければ 5 人。 */
+    public const DEFAULT_MAX = 5;
+
     public function add(int $profileId, int $swimmerId): void
     {
         $this->db->execute(

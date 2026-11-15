@@ -12,6 +12,8 @@ use DropTime\Support\View;
 /** @var list<array<string, mixed>> $shapes */
 /** @var bool $isFavorite */
 /** @var array{type: string, message: string}|null $flash */
+/** @var bool $favoritesFull */
+/** @var int $maxFavorites */
 /** @var DropTime\Support\View $view */
 $e = static fn (mixed $v): string => View::e($v);
 $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
@@ -25,14 +27,18 @@ $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
             <?php if ($swimmer['team_name'] !== null) : ?> ・ <?= $e($swimmer['team_name']) ?><?php endif; ?>
         </p>
     </div>
-    <form method="post" action="<?= $view->url($isFavorite ? 'favorites.remove' : 'favorites.add') ?>">
-        <?= DropTime\Http\Csrf::field() ?>
-        <input type="hidden" name="swimmer_id" value="<?= $e($swimmer['id']) ?>">
-        <input type="hidden" name="back" value="/swimmers/<?= $e($swimmer['id']) ?>">
-        <button type="submit" class="button button--small<?= $isFavorite ? ' button--quiet' : '' ?>">
-            <?= $isFavorite ? $t('sw.fav_on') : $t('sw.fav_off') ?>
-        </button>
-    </form>
+    <?php if (!$isFavorite && $favoritesFull) : ?>
+        <a class="button button--small button--quiet" href="<?= $view->url('favorites') ?>"><?= $t('sw.fav_full', $maxFavorites) ?></a>
+    <?php else : ?>
+        <form method="post" action="<?= $view->url($isFavorite ? 'favorites.remove' : 'favorites.add') ?>">
+            <?= DropTime\Http\Csrf::field() ?>
+            <input type="hidden" name="swimmer_id" value="<?= $e($swimmer['id']) ?>">
+            <input type="hidden" name="back" value="/swimmers/<?= $e($swimmer['id']) ?>">
+            <button type="submit" class="button button--small<?= $isFavorite ? ' button--quiet' : '' ?>">
+                <?= $isFavorite ? $t('sw.fav_on') : $t('sw.fav_off') ?>
+            </button>
+        </form>
+    <?php endif; ?>
 </div>
 
 <?php if ($flash !== null) : ?>

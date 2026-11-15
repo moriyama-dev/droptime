@@ -2909,3 +2909,11 @@ button.topbar__switch {
 }
 
 [hidden] { display: none !important; }
+
+/* お気に入りの人数（登録済み 2 / 5 人） */
+.section__count {
+    margin-left: 8px;
+    color: var(--dt-text-muted);
+    font-size: 0.85rem;
+    font-weight: 400;
+}

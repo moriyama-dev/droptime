@@ -42,6 +42,8 @@ final class SwimmerController extends Controller
             'meetGroups' => array_values($meetGroups),
             'shapes' => Progression::build($results),
             'isFavorite' => $this->isFavorite((int) $swimmer['id']),
+            'favoritesFull' => $this->favoritesFull(),
+            'maxFavorites' => FavoritesController::maxFavorites($this->context->config),
             'flash' => Flash::pull(),
         ]);
     }
@@ -74,6 +76,19 @@ final class SwimmerController extends Controller
         }
 
         return $swimmer;
+    }
+
+    private function favoritesFull(): bool
+    {
+        $profileId = ProfileSession::currentId();
+
+        if ($profileId === null) {
+            return false;
+        }
+
+        $count = count((new FavoriteRepository($this->context->db))->favoriteIdsOf($profileId));
+
+        return $count >= FavoritesController::maxFavorites($this->context->config);
     }
 
     private function isFavorite(int $swimmerId): bool

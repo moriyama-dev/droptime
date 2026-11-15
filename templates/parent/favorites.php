@@ -9,12 +9,14 @@ use DropTime\Support\View;
 /** @var string $query */
 /** @var list<array<string, mixed>> $searchResults */
 /** @var bool $searchExact */
+/** @var int $maxFavorites */
 /** @var string|null $issuedCode */
 /** @var array{type: string, message: string}|null $flash */
 /** @var DropTime\Support\View $view */
 $e = static fn (mixed $v): string => View::e($v);
 $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
 
+$isFull = count($favoriteSwimmers) >= $maxFavorites;
 $favoriteIds = array_flip(array_map(static fn (array $s): int => (int) $s['id'], $favoriteSwimmers));
 ?>
 <h1 class="page-title"><?= $t('fav.title') ?></h1>
@@ -32,7 +34,11 @@ $favoriteIds = array_flip(array_map(static fn (array $s): int => (int) $s['id'],
 <?php endif; ?>
 
 <section class="section">
-    <h2 class="section__title"><?= $t('fav.registered') ?></h2>
+    <h2 class="section__title"><?= $t('fav.registered') ?>
+        <span class="section__count"><?= $t('fav.count', count($favoriteSwimmers), $maxFavorites) ?></span></h2>
+    <?php if ($isFull) : ?>
+        <p class="panel__note"><?= $t('fav.full_note', $maxFavorites) ?></p>
+    <?php endif; ?>
     <?php if ($favoriteSwimmers === []) : ?>
         <p class="empty"><?= $t('fav.none') ?></p>
     <?php else : ?>
@@ -90,15 +96,17 @@ $favoriteIds = array_flip(array_map(static fn (array $s): int => (int) $s['id'],
                                 <?php if ($swimmer['team_name'] !== null) : ?> ・ <?= $e($swimmer['team_name']) ?><?php endif; ?>
                             </span>
                         </a>
-                        <?php if (!isset($favoriteIds[(int) $swimmer['id']])) : ?>
+                        <?php if (isset($favoriteIds[(int) $swimmer['id']])) : ?>
+                            <span class="badge badge--committed"><?= $t('fav.registered') ?></span>
+                        <?php elseif ($isFull) : ?>
+                            <span class="badge"><?= $t('fav.full_badge') ?></span>
+                        <?php else : ?>
                             <form method="post" action="<?= $view->url('favorites.add') ?>">
                                 <?= DropTime\Http\Csrf::field() ?>
                                 <input type="hidden" name="swimmer_id" value="<?= $e($swimmer['id']) ?>">
                                 <input type="hidden" name="back" value="/favorites?q=<?= $e(rawurlencode($query)) ?>">
                                 <button type="submit" class="button button--small"><?= $t('fav.add') ?></button>
                             </form>
-                        <?php else : ?>
-                            <span class="badge badge--committed"><?= $t('fav.registered') ?></span>
                         <?php endif; ?>
                     </li>
                 <?php endforeach; ?>

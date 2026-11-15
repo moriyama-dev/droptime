@@ -41,6 +41,7 @@ final class FavoritesController extends Controller
 
         return $this->view('parent/favorites', [
             'favoriteSwimmers' => $profileId !== null ? $favorites->favoritesOf($profileId) : [],
+            'maxFavorites' => self::maxFavorites($this->context->config),
             'query' => $query,
             'searchResults' => $search['swimmers'],
             'searchExact' => $search['exact'],
@@ -85,6 +86,7 @@ final class FavoritesController extends Controller
         return new Response((string) json_encode([
             'query' => $query,
             'exact' => $search['exact'],
+            'full' => count($favoriteIds) >= self::maxFavorites($this->context->config),
             'items' => $items,
         ], JSON_UNESCAPED_UNICODE), 200, [
             'Content-Type' => 'application/json; charset=UTF-8',
@@ -105,6 +107,16 @@ final class FavoritesController extends Controller
 
         $favorites = $this->favorites();
         $profileId = ProfileSession::ensure($favorites);
+        $currentIds = $favorites->favoriteIdsOf($profileId);
+        $max = self::maxFavorites($this->context->config);
+
+        // 上限は新しく足すときだけ見る（登録済みの選手をもう一度押しても弾かない）。
+        if (!in_array($swimmerId, $currentIds, true) && count($currentIds) >= $max) {
+            Flash::error(Lang::t('fl.fav_full', $max));
+
+            return $this->back($request);
+        }
+
         $favorites->add($profileId, $swimmerId);
         $favorites->touch($profileId);
 
@@ -190,6 +202,12 @@ final class FavoritesController extends Controller
         Flash::success(Lang::t('fl.fav_forgotten'));
 
         return $this->redirectToRoute('favorites');
+    }
+
+    /** 1 家族が登録できる選手の数。お気に入り画面と選手の画面で共用。 */
+    public static function maxFavorites(\DropTime\Support\Config $config): int
+    {
+        return max(1, $config->int('favorites.max', FavoriteRepository::DEFAULT_MAX));
     }
 
     private function swimmers(): SwimmerRepository
