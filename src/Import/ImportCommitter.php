@@ -99,8 +99,9 @@ final class ImportCommitter
 
         if ($existing !== null) {
             $this->db->execute(
+                // 会場は、取り込むファイルに無ければ今の値を残す（あとから登録した会場を、取り込み直しで消さない）。
                 'UPDATE meets SET host = :host, end_date = :end_date, course = :course,'
-                . ' venue = :venue, source_file = :source_file, updated_at = :updated_at'
+                . ' venue = COALESCE(:venue, venue), source_file = :source_file, updated_at = :updated_at'
                 . ' WHERE id = :id',
                 [
                     'host' => $values['host'],
