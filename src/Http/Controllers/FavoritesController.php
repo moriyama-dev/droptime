@@ -32,7 +32,9 @@ final class FavoritesController extends Controller
         $profileId = ProfileSession::currentId();
 
         $query = trim($request->queryString('q'));
-        $searchResults = $query !== '' ? (new SwimmerRepository($this->context->db))->search($query) : [];
+        $search = $query !== ''
+            ? $this->swimmers()->search($query, 30, $this->clubCode())
+            : ['exact' => true, 'swimmers' => []];
 
         $issuedCode = $_SESSION[self::ISSUED_CODE_KEY] ?? null;
         unset($_SESSION[self::ISSUED_CODE_KEY]);
@@ -40,16 +42,60 @@ final class FavoritesController extends Controller
         return $this->view('parent/favorites', [
             'favoriteSwimmers' => $profileId !== null ? $favorites->favoritesOf($profileId) : [],
             'query' => $query,
-            'searchResults' => $searchResults,
+            'searchResults' => $search['swimmers'],
+            'searchExact' => $search['exact'],
             'issuedCode' => is_string($issuedCode) ? $issuedCode : null,
             'flash' => Flash::pull(),
+        ]);
+    }
+
+    /**
+     * 入力中の候補（Google の検索枠のように、打つたびに出す）。public/assets/app.js が呼ぶ。
+     */
+    public function suggest(Request $request): Response
+    {
+        $query = trim($request->queryString('q'));
+        $search = $query !== ''
+            ? $this->swimmers()->search($query, 8, $this->clubCode())
+            : ['exact' => true, 'swimmers' => []];
+
+        $profileId = ProfileSession::currentId();
+        $favoriteIds = $profileId !== null ? array_flip($this->favorites()->favoriteIdsOf($profileId)) : [];
+        $items = [];
+
+        foreach ($search['swimmers'] as $swimmer) {
+            $meta = [];
+
+            if ($swimmer['birth_year'] !== null) {
+                $meta[] = Lang::t('common.born', (int) $swimmer['birth_year']);
+            }
+
+            if ($swimmer['team_name'] !== null) {
+                $meta[] = (string) $swimmer['team_name'];
+            }
+
+            $items[] = [
+                'id' => (int) $swimmer['id'],
+                'name' => (string) $swimmer['full_name'],
+                'meta' => implode(' ・ ', $meta),
+                'favorite' => isset($favoriteIds[(int) $swimmer['id']]),
+            ];
+        }
+
+        return new Response((string) json_encode([
+            'query' => $query,
+            'exact' => $search['exact'],
+            'items' => $items,
+        ], JSON_UNESCAPED_UNICODE), 200, [
+            'Content-Type' => 'application/json; charset=UTF-8',
+            'Cache-Control' => 'no-store',
         ]);
     }
 
     public function add(Request $request): Response
     {
         $swimmerId = (int) $request->postString('swimmer_id');
-        $swimmer = (new SwimmerRepository($this->context->db))->find($swimmerId);
+        $swimmer = $this->swimmers()->find($swimmerId);
 
         if ($swimmer === null) {
             Flash::error(Lang::t('fl.swimmer_missing'));
@@ -144,6 +190,17 @@ final class FavoritesController extends Controller
         Flash::success(Lang::t('fl.fav_forgotten'));
 
         return $this->redirectToRoute('favorites');
+    }
+
+    private function swimmers(): SwimmerRepository
+    {
+        return new SwimmerRepository($this->context->db);
+    }
+
+    /** 自分のクラブ（同点のとき上に出す）。config の fetch.club_code。 */
+    private function clubCode(): string
+    {
+        return $this->context->config->string('fetch.club_code', '');
     }
 
     private function favorites(): FavoriteRepository

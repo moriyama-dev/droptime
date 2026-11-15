@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DropTime\Repository;
 
 use DropTime\Db\Database;
+use DropTime\Domain\NameSearch;
 use DropTime\Support\Str;
 
 /**
@@ -29,29 +30,63 @@ final class SwimmerRepository
     }
 
     /**
-     * 名前で検索する。入力を正規化してから前方・部分一致で探す。
+     * 名前で検索する。語順を問わず、打ちかけや綴りの間違いも推測する（Domain\NameSearch）。
+     * 選手は数千人なので、全員の姓名を読んで PHP で採点する。
      *
-     * @return list<array<string, mixed>>
+     * @param string $preferredTeamCode 同点のときに上に出すクラブ（自分のクラブ）
+     * @return array{exact: bool, swimmers: list<array<string, mixed>>}
+     *         exact=false は綴りどおりの選手がいなかったときの「もしかして」。
      */
-    public function search(string $query, int $limit = 30): array
+    public function search(string $query, int $limit = 30, string $preferredTeamCode = ''): array
     {
-        $normalized = Str::normalizeName($query);
-
-        if ($normalized === '') {
-            return [];
+        if (Str::normalizeName($query) === '') {
+            return ['exact' => true, 'swimmers' => []];
         }
 
-        // LIKE のメタ文字はデータではなく検索語なのでエスケープする。
-        $escaped = addcslashes($normalized, '%_\\');
+        $rows = $this->db->select(
+            'SELECT s.id, s.last_name, s.first_name, t.code AS team_code'
+            . ' FROM swimmers s LEFT JOIN teams t ON t.id = s.team_id'
+        );
 
-        return $this->db->select(
+        $preferred = strtoupper(trim($preferredTeamCode));
+        $candidates = [];
+
+        foreach ($rows as $row) {
+            $candidates[] = [
+                'id' => (int) $row['id'],
+                'last_name' => (string) $row['last_name'],
+                'first_name' => (string) $row['first_name'],
+                'preferred' => $preferred !== '' && strtoupper((string) ($row['team_code'] ?? '')) === $preferred,
+            ];
+        }
+
+        $result = NameSearch::search($query, $candidates, $limit);
+        $ids = array_map(static fn (array $h): int => $h['id'], $result['hits']);
+
+        if ($ids === []) {
+            return ['exact' => $result['exact'], 'swimmers' => []];
+        }
+
+        $found = $this->db->select(
             'SELECT s.*, t.name AS team_name FROM swimmers s'
             . ' LEFT JOIN teams t ON t.id = s.team_id'
-            . ' WHERE s.normalized_key LIKE :pattern'
-            . ' ORDER BY s.last_name, s.first_name, s.id'
-            . ' LIMIT ' . max(1, $limit),
-            ['pattern' => '%' . $escaped . '%']
+            . ' WHERE s.id IN (' . implode(',', $ids) . ')'
         );
+        $byId = [];
+
+        foreach ($found as $row) {
+            $byId[(int) $row['id']] = $row;
+        }
+
+        $swimmers = [];
+
+        foreach ($ids as $id) {
+            if (isset($byId[$id])) {
+                $swimmers[] = $byId[$id];
+            }
+        }
+
+        return ['exact' => $result['exact'], 'swimmers' => $swimmers];
     }
 
     /**

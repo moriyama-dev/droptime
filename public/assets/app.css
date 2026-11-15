@@ -278,6 +278,11 @@ body {
     color: var(--dt-accent);
 }
 
+.alert--info {
+    border-color: var(--dt-gold, #ffc94d);
+    color: var(--dt-text);
+}
+
 .alert--error {
     border-color: var(--dt-danger);
     color: var(--dt-danger);
@@ -1017,6 +1022,68 @@ body.has-tabbar {
 
 .search-form {
     margin-bottom: 20px;
+}
+
+/* 入力中の候補（app.js が出す。JavaScript が無ければ出ず、検索ボタンで今までどおり探せる） */
+.suggest {
+    position: relative;
+    display: block;
+}
+
+.suggest__list {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 6px 0;
+    list-style: none;
+    background: var(--dt-surface-raised);
+    border: 1px solid var(--dt-border);
+    border-radius: var(--dt-radius);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.suggest__list[hidden] {
+    display: none;
+}
+
+.suggest__note {
+    padding: 4px 14px 6px;
+    color: var(--dt-text-muted);
+    font-size: 0.85rem;
+}
+
+.suggest__item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: var(--dt-tap);
+    padding: 6px 14px;
+    cursor: pointer;
+}
+
+.suggest__item[aria-selected="true"],
+.suggest__item:hover {
+    background: var(--dt-surface);
+}
+
+.suggest__name {
+    color: var(--dt-text);
+    font-weight: 600;
+}
+
+.suggest__name mark {
+    background: none;
+    color: var(--dt-gold, #ffc94d);
+}
+
+.suggest__meta {
+    color: var(--dt-text-muted);
+    font-size: 0.85rem;
 }
 
 .button--small {

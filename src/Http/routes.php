@@ -43,6 +43,7 @@ return [
     ['GET', '/sources/{capture}/file', [SourceController::class, 'file'], Access::PARENT, 'sources.file'],
 
     ['GET', '/favorites', [FavoritesController::class, 'index'], Access::PARENT, 'favorites'],
+    ['GET', '/favorites/suggest', [FavoritesController::class, 'suggest'], Access::PARENT, 'favorites.suggest'],
     ['POST', '/favorites/add', [FavoritesController::class, 'add'], Access::PARENT, 'favorites.add'],
     ['POST', '/favorites/remove', [FavoritesController::class, 'remove'], Access::PARENT, 'favorites.remove'],
     ['POST', '/favorites/code', [FavoritesController::class, 'issueCode'], Access::PARENT, 'favorites.code'],

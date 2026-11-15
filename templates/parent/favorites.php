@@ -8,6 +8,7 @@ use DropTime\Support\View;
 /** @var list<array<string, mixed>> $favoriteSwimmers */
 /** @var string $query */
 /** @var list<array<string, mixed>> $searchResults */
+/** @var bool $searchExact */
 /** @var string|null $issuedCode */
 /** @var array{type: string, message: string}|null $flash */
 /** @var DropTime\Support\View $view */
@@ -61,7 +62,13 @@ $favoriteIds = array_flip(array_map(static fn (array $s): int => (int) $s['id'],
     <form method="get" action="<?= $view->url('favorites') ?>" class="search-form" role="search">
         <label class="field">
             <span class="field__label"><?= $t('fav.search_label') ?></span>
-            <input class="field__input" type="search" name="q" value="<?= $e($query) ?>" placeholder="<?= $t('fav.search_placeholder') ?>" autocomplete="off">
+            <span class="suggest" data-suggest-url="<?= $view->url('favorites.suggest') ?>"
+                  data-did-you-mean="<?= $t('fav.did_you_mean_short') ?>" data-registered="<?= $t('fav.registered') ?>">
+                <input class="field__input" type="search" name="q" value="<?= $e($query) ?>" placeholder="<?= $t('fav.search_placeholder') ?>"
+                       autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"
+                       role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest-list">
+                <ul class="suggest__list" id="suggest-list" role="listbox" hidden></ul>
+            </span>
         </label>
         <button type="submit" class="button"><?= $t('fav.search_button') ?></button>
     </form>
@@ -70,6 +77,9 @@ $favoriteIds = array_flip(array_map(static fn (array $s): int => (int) $s['id'],
         <?php if ($searchResults === []) : ?>
             <p class="empty"><?= $t('fav.no_match', $query) ?></p>
         <?php else : ?>
+            <?php if (!$searchExact) : ?>
+                <p class="alert alert--info"><?= $t('fav.did_you_mean', $query) ?></p>
+            <?php endif; ?>
             <ul class="swimmer-list">
                 <?php foreach ($searchResults as $swimmer) : ?>
                     <li class="swimmer-row">

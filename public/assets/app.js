@@ -396,3 +396,215 @@
         start();
     }
 })();
+
+/*
+ * 選手をさがす欄の「入力中の候補」（templates/parent/favorites.php の .suggest）。
+ * Google の検索枠のように、打つたびに /favorites/suggest から候補を取って下に並べる。
+ * 語順・打ちかけ・綴りの間違いの推測はサーバー側（Domain\NameSearch）。
+ * ↑↓ で選び、Enter で決定、Esc で閉じる。候補を選ぶとその名前で検索する。
+ */
+(function () {
+    'use strict';
+
+    function setup(box) {
+        var input = box.querySelector('input');
+        var list = box.querySelector('.suggest__list');
+        var form = box.closest('form');
+        var url = box.getAttribute('data-suggest-url');
+
+        if (!input || !list || !form || !url || !window.fetch) {
+            return;
+        }
+
+        var timer = null;
+        var seq = 0;
+        var items = [];
+        var active = -1;
+
+        function close() {
+            list.hidden = true;
+            input.setAttribute('aria-expanded', 'false');
+            input.removeAttribute('aria-activedescendant');
+            active = -1;
+        }
+
+        function highlight(name, query) {
+            // 打った語の頭と同じ部分を太字にする（綴りの推測で当たった語はそのまま）。
+            var words = query.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+            var frag = document.createDocumentFragment();
+
+            name.split(/(\s+)/).forEach(function (part) {
+                var lower = part.toLowerCase();
+                var hit = 0;
+
+                words.forEach(function (w) {
+                    if (lower.indexOf(w) === 0 && w.length > hit) {
+                        hit = w.length;
+                    }
+                });
+
+                if (hit > 0) {
+                    var mark = document.createElement('mark');
+                    mark.textContent = part.slice(0, hit);
+                    frag.appendChild(mark);
+                    frag.appendChild(document.createTextNode(part.slice(hit)));
+                } else {
+                    frag.appendChild(document.createTextNode(part));
+                }
+            });
+
+            return frag;
+        }
+
+        function setActive(index) {
+            var nodes = list.querySelectorAll('.suggest__item');
+
+            nodes.forEach(function (node, i) {
+                node.setAttribute('aria-selected', i === index ? 'true' : 'false');
+            });
+
+            active = index;
+
+            if (index >= 0 && nodes[index]) {
+                input.setAttribute('aria-activedescendant', nodes[index].id);
+                nodes[index].scrollIntoView({ block: 'nearest' });
+            } else {
+                input.removeAttribute('aria-activedescendant');
+            }
+        }
+
+        function choose(index) {
+            if (!items[index]) {
+                return;
+            }
+
+            input.value = items[index].name;
+            close();
+            form.submit();
+        }
+
+        function render(data, query) {
+            items = data.items || [];
+            list.textContent = '';
+
+            if (items.length === 0) {
+                close();
+                return;
+            }
+
+            if (!data.exact) {
+                var note = document.createElement('li');
+                note.className = 'suggest__note';
+                note.setAttribute('role', 'presentation');
+                note.textContent = box.getAttribute('data-did-you-mean') || '';
+                list.appendChild(note);
+            }
+
+            items.forEach(function (item, i) {
+                var li = document.createElement('li');
+                li.className = 'suggest__item';
+                li.id = 'suggest-item-' + i;
+                li.setAttribute('role', 'option');
+                li.setAttribute('aria-selected', 'false');
+
+                var name = document.createElement('span');
+                name.className = 'suggest__name';
+                name.appendChild(highlight(item.name, query));
+                li.appendChild(name);
+
+                var metaText = item.meta || '';
+
+                if (item.favorite) {
+                    metaText += (metaText ? ' ・ ' : '') + (box.getAttribute('data-registered') || '');
+                }
+
+                if (metaText) {
+                    var meta = document.createElement('span');
+                    meta.className = 'suggest__meta';
+                    meta.textContent = metaText;
+                    li.appendChild(meta);
+                }
+
+                // blur より先に拾うため mousedown で決める。
+                li.addEventListener('mousedown', function (event) {
+                    event.preventDefault();
+                    choose(i);
+                });
+
+                list.appendChild(li);
+            });
+
+            active = -1;
+            list.hidden = false;
+            input.setAttribute('aria-expanded', 'true');
+        }
+
+        function load() {
+            var query = input.value.trim();
+            var mine = ++seq;
+
+            if (query.length < 2) {
+                close();
+                return;
+            }
+
+            fetch(url + (url.indexOf('?') < 0 ? '?' : '&') + 'q=' + encodeURIComponent(query), {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json' }
+            }).then(function (response) {
+                return response.ok ? response.json() : null;
+            }).then(function (data) {
+                // 遅れて届いた古い答えは捨てる。
+                if (data && mine === seq && document.activeElement === input) {
+                    render(data, query);
+                }
+            }).catch(function () {
+                close();
+            });
+        }
+
+        input.addEventListener('input', function () {
+            clearTimeout(timer);
+            timer = setTimeout(load, 150);
+        });
+
+        input.addEventListener('focus', function () {
+            if (input.value.trim().length >= 2) {
+                load();
+            }
+        });
+
+        input.addEventListener('blur', function () {
+            setTimeout(close, 100);
+        });
+
+        input.addEventListener('keydown', function (event) {
+            if (list.hidden) {
+                return;
+            }
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                setActive(active + 1 >= items.length ? 0 : active + 1);
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                setActive(active <= 0 ? items.length - 1 : active - 1);
+            } else if (event.key === 'Enter' && active >= 0) {
+                event.preventDefault();
+                choose(active);
+            } else if (event.key === 'Escape') {
+                close();
+            }
+        });
+    }
+
+    function start() {
+        document.querySelectorAll('.suggest').forEach(setup);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+    } else {
+        start();
+    }
+})();
