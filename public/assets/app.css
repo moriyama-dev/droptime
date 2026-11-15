@@ -622,6 +622,16 @@ body.has-tabbar {
     font-size: 0.85rem;
 }
 
+.race-card__basis {
+    color: var(--dt-text-muted);
+    font-size: 0.75rem;
+}
+
+.race-card__basis--measured {
+    color: var(--dt-accent, inherit);
+    font-weight: 600;
+}
+
 .race-card__place {
     display: flex;
     gap: 14px;

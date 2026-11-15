@@ -62,6 +62,10 @@ return [
     'home.cd_at' => 'around %s',
     'home.cd_next' => 'next event',
     'home.cd_events_before' => '%d events before',
+    'home.basis_measured' => 'Predicted from %d measured swims at this pool',
+    'home.basis_formula' => 'No measurements yet · calculated',
+    'home.basis_note' => 'Times are predicted from how long the same stroke and distance actually took at this pool before. Events without enough measurements yet are marked “No measurements yet · calculated” and use entry times instead. Every meet adds new measurements, so the predictions keep getting more accurate.',
+    'home.basis_no_venue' => 'This meet has no venue on record, so past measurements cannot be used. Times are calculated from entry times.',
 
     'meets.title' => 'History',
     'meets.badge_results' => 'Results',

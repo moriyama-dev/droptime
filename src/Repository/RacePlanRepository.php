@@ -6,6 +6,7 @@ namespace DropTime\Repository;
 
 use DropTime\Db\Database;
 use DropTime\Domain\LiveSchedule;
+use DropTime\Domain\MeasuredTimings;
 use DropTime\Domain\ScheduleEstimator;
 
 /**
@@ -29,7 +30,8 @@ final class RacePlanRepository
      *
      * 各エントリーに足すもの:
      *   schedule  ?array{time: string, estimated: bool}
-     *   live      ?array{start, status, events_before, session_done, corrected, date, time, minutes, is_today}
+     *   live      ?array{start, status, events_before, session_done, corrected, measured, date, time, minutes, is_today, venue_known}
+     *             measured は、この種目の所要時間のもとにした「同じ会場・同じ種目・同じ距離」の実測の回数（0 なら計算式だけ）
      *   today_at  ?string  今日泳ぐなら現地の開始時刻 'Y-m-d H:i:s'（分からなければ null）
      *
      * @param list<array<string, mixed>> $entries FavoriteRepository::upcomingEntries の形
@@ -60,6 +62,10 @@ final class RacePlanRepository
 
                 $sessions = $meets->sessionsOf($meetId);
                 $live = $sessions === [] ? [] : $meets->liveStatusOf($meetId);
+                // 同じ会場・同じ種目・同じ距離の実測。会場が分からない大会では使わない。
+                $meetRow = $sessions === [] ? null : $meets->find($meetId);
+                $venueKey = $meetRow === null ? null : MeasuredTimings::venueKey($meetRow['venue'] ?? null, $meetRow['host'] ?? null);
+                $factors = $venueKey === null ? [] : MeasuredTimings::factors($meets->timingsAt($venueKey));
                 $end = (string) ($entry['end_date'] ?? $entry['start_date']);
 
                 $groups[$meetId] = [
@@ -71,7 +77,8 @@ final class RacePlanRepository
                         'venue' => $entry['venue'],
                     ],
                     'estimates' => $estimates,
-                    'plan' => $sessions === [] ? [] : LiveSchedule::forMeet($sessions, $live, $now, $this->lanes),
+                    'plan' => $sessions === [] ? [] : LiveSchedule::forMeet($sessions, $live, $now, $this->lanes, $factors),
+                    'venue_known' => $venueKey !== null,
                     'single_day' => (string) $entry['start_date'] === $end,
                     'is_today' => (string) $entry['start_date'] <= $today && $end >= $today,
                     'latest' => $live === [] ? null : $live[0] + ['time' => substr($live[0]['finished_at'], 11, 5)],
@@ -91,6 +98,7 @@ final class RacePlanRepository
                     'time' => ltrim(substr($plan['start'], 11, 5), '0'),
                     'minutes' => LiveSchedule::minutesUntil($plan['start'], $now),
                     'is_today' => substr($plan['start'], 0, 10) === $today,
+                    'venue_known' => $group['venue_known'],
                 ];
                 $entry['schedule'] = ['time' => $entry['live']['time'], 'estimated' => true];
 
@@ -106,7 +114,7 @@ final class RacePlanRepository
         }
 
         return array_values(array_map(static function (array $group): array {
-            unset($group['estimates'], $group['plan'], $group['single_day']);
+            unset($group['estimates'], $group['plan'], $group['single_day'], $group['venue_known']);
 
             // セッションの見積もりがある大会は、見積もりの開始時刻の順に並べる（並行するセッションが混ざるため）。
             usort($group['entries'], static fn (array $a, array $b): int => strcmp(

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DropTime\Repository;
 
 use DropTime\Db\Database;
+use DropTime\Domain\MeasuredTimings;
 
 /**
  * 大会・種目・エントリー・結果の読み取り。保護者向け画面はここだけを使う。
@@ -56,6 +57,7 @@ final class MeetRepository
      *
      * @return list<array{id: int, code: ?string, date: ?string, start_time: ?string,
      *                    events: list<array{event_number: string, round: string, distance: int,
+     *                                       stroke: string, is_relay: bool,
      *                                       heat_count: int, entry_count: int, result_count: int,
      *                                       times: list<array{heat: ?int, cs: ?int}>}>}>
      *         times は所要時間の見積もりに使うタイム。エントリータイム（タイムなしは null）、
@@ -110,7 +112,7 @@ final class MeetRepository
         }
 
         foreach ($this->db->select(
-            'SELECT e.id, e.meet_session_id, e.event_number, e.round, e.distance,'
+            'SELECT e.id, e.meet_session_id, e.event_number, e.round, e.distance, e.stroke, e.is_relay,'
             . ' (SELECT COUNT(DISTINCT en.heat) FROM entries en WHERE en.event_id = e.id) AS heat_count,'
             . ' (SELECT COUNT(*) FROM entries en WHERE en.event_id = e.id) AS entry_count,'
             . ' (SELECT COUNT(*) FROM results r WHERE r.event_id = e.id) AS result_count'
@@ -128,6 +130,8 @@ final class MeetRepository
                 'event_number' => (string) $row['event_number'],
                 'round' => (string) $row['round'],
                 'distance' => (int) $row['distance'],
+                'stroke' => (string) $row['stroke'],
+                'is_relay' => (int) $row['is_relay'] === 1,
                 'heat_count' => (int) $row['heat_count'],
                 'entry_count' => (int) $row['entry_count'],
                 'result_count' => (int) $row['result_count'],
@@ -156,6 +160,38 @@ final class MeetRepository
                 ['meet_id' => $meetId]
             )
         );
+    }
+
+    /**
+     * 所要時間の実測のうち、この会場のもの（MeasuredTimings::factors に渡す形）。
+     *
+     * 会場は実測の行ではなく大会から引く（あとから会場を登録・訂正しても効くように）。
+     * 実測は多くても数百行なので、全部読んで会場のキーで選ぶ。
+     *
+     * @return list<array{stroke: string, distance: int, is_relay: bool, actual_seconds: int, model_seconds: int}>
+     */
+    public function timingsAt(string $venueKey): array
+    {
+        $rows = [];
+
+        foreach ($this->db->select(
+            'SELECT t.stroke, t.distance, t.is_relay, t.actual_seconds, t.model_seconds, m.venue, m.host'
+            . ' FROM event_timings t JOIN meets m ON m.id = t.meet_id'
+        ) as $row) {
+            if (MeasuredTimings::venueKey($row['venue'], $row['host']) !== $venueKey) {
+                continue;
+            }
+
+            $rows[] = [
+                'stroke' => (string) $row['stroke'],
+                'distance' => (int) $row['distance'],
+                'is_relay' => (int) $row['is_relay'] === 1,
+                'actual_seconds' => (int) $row['actual_seconds'],
+                'model_seconds' => (int) $row['model_seconds'],
+            ];
+        }
+
+        return $rows;
     }
 
     /** @return array<string, mixed>|null */

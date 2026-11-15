@@ -116,6 +116,13 @@ $countdown = static function (array $live) use ($t): string {
                                         <?= $t('common.seed') ?> <span class="time"><?= $e(SwimTime::format((int) $entry['seed_time_cs'])) ?></span>
                                     <?php endif; ?>
                                 </span>
+                                <?php if ($live !== null && $live['status'] !== 'done') : ?>
+                                    <?php if ((int) $live['measured'] > 0) : ?>
+                                        <span class="race-card__basis race-card__basis--measured"><?= $t('home.basis_measured', (int) $live['measured']) ?></span>
+                                    <?php else : ?>
+                                        <span class="race-card__basis"><?= $t('home.basis_formula') ?></span>
+                                    <?php endif; ?>
+                                <?php endif; ?>
                             </div>
                             <div class="race-card__place">
                                 <?php if ($entry['heat'] !== null) : ?>
@@ -129,6 +136,10 @@ $countdown = static function (array $live) use ($t): string {
                     </li>
                 <?php endforeach; ?>
             </ol>
+            <?php $planned = array_values(array_filter($group['entries'], static fn (array $entry): bool => ($entry['live'] ?? null) !== null)); ?>
+            <?php if ($planned !== []) : ?>
+                <p class="footnote"><?= $t($planned[0]['live']['venue_known'] ? 'home.basis_note' : 'home.basis_no_venue') ?></p>
+            <?php endif; ?>
         </section>
     <?php endforeach; ?>
     <p class="footnote"><?= $t('home.footnote') ?></p>

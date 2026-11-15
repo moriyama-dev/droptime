@@ -22,6 +22,8 @@ use DateTimeZone;
  *   - 見積もりの終了時刻を過ぎても結果が出ない種目は、掲載の遅れぶん（数分）は待ち、
  *     それを超えたら遅れているとみなして後ろへずらす。ただしずらすのは一定の幅まで。
  *     結果が掲載されないだけのときに、見積もりが際限なく遅くなる（出番を逃す向きの誤り）のを防ぐ。
+ *   - 同じ会場・同じ種目・同じ距離の実測（MeasuredTimings）がある種目は、計算式にその実測の倍率を掛ける。
+ *     実測が無い種目だけ、上の大会全体のペースを掛ける。
  *   - 同じ日の前のセッションが押していると実際の進み具合から分かるときは、
  *     次のセッションはウォームアップの時間を空けてから始まるとみなす。
  *
@@ -53,13 +55,16 @@ final class LiveSchedule
 
     /**
      * @param list<array{date: ?string, start_time: ?string,
-     *                   events: list<array{key: string, distance: int, heats: int, done: bool, finished_at: ?string, duration?: int}>}> $sessions
+     *                   events: list<array{key: string, distance: int, heats: int, done: bool, finished_at: ?string,
+     *                                      duration?: int, measured?: int}>}> $sessions
      *        events はセッション内の並び順。finished_at は終わった時刻（分かれば）。
-     *        duration は所要時間の見積もり（秒）。無ければ距離と組数から出す
+     *        duration は所要時間の見積もり（秒）。無ければ距離と組数から出す。
+     *        measured は、duration が同じ会場・同じ種目の実測にもとづくとき、その実測の回数（無ければ 0）
      * @param string $now 現地の今 'Y-m-d H:i:s'
-     * @return array<string, array{start: string, status: string, events_before: int, session_done: int, corrected: bool}>
+     * @return array<string, array{start: string, status: string, events_before: int, session_done: int, corrected: bool, measured: int}>
      *         種目のキー → 見積もりの開始時刻・状態・その種目の前に残っている種目の数・
-     *         そのセッションで終わった種目の数・実際の進み具合で補正したか
+     *         そのセッションで終わった種目の数・実際の進み具合で補正したか・
+     *         その種目の所要時間のもとにした実測の回数（0 なら計算式だけ）
      */
     public static function compute(array $sessions, string $now): array
     {
@@ -114,7 +119,10 @@ final class LiveSchedule
 
             foreach ($events as $index => $event) {
                 $start = $cursor;
-                $duration = (int) round($session['durations'][$index] * $pace);
+                // 同じ会場・同じ種目の実測から出した所要時間には、大会全体のペースを重ねて掛けない。
+                $duration = ($event['measured'] ?? 0) > 0
+                    ? $session['durations'][$index]
+                    : (int) round($session['durations'][$index] * $pace);
 
                 if ($index <= $lastDone) {
                     if ($event['finished_at'] !== null) {
@@ -147,6 +155,7 @@ final class LiveSchedule
                     'events_before' => max(0, $index - $lastDone - 1),
                     'session_done' => $lastDone + 1,
                     'corrected' => $corrected,
+                    'measured' => $event['measured'] ?? 0,
                 ];
             }
 
@@ -208,9 +217,11 @@ final class LiveSchedule
      *                    distance: int, heat_count: int, entry_count: int, result_count: int,
      *                    times?: list<array{heat: ?int, cs: ?int}>}>}> $sessions
      * @param list<array{event_number: string, round: string, finished_at: string}> $live
-     * @return array<string, array{start: string, status: string, events_before: int, session_done: int, corrected: bool}>
+     * @param array<string, array{factor: ?float, samples: int}> $factors 同じ会場の実測から出した、種目・距離ごとの倍率
+     *        （MeasuredTimings::factors）。合う実測がある種目は、計算式にその倍率を掛ける
+     * @return array<string, array{start: string, status: string, events_before: int, session_done: int, corrected: bool, measured: int}>
      */
-    public static function forMeet(array $sessions, array $live, string $now, int $lanes = 8): array
+    public static function forMeet(array $sessions, array $live, string $now, int $lanes = 8, array $factors = []): array
     {
         $lanes = max(1, $lanes);
         $finished = [];
@@ -227,14 +238,16 @@ final class LiveSchedule
             foreach ($session['events'] as $event) {
                 $key = self::key($event['event_number'], $event['round']);
                 $swimmers = max($event['entry_count'], $event['result_count']);
+                $factor = isset($event['stroke'])
+                    ? ($factors[MeasuredTimings::eventKey($event['stroke'], $event['distance'], $event['is_relay'] ?? false)] ?? null)
+                    : null;
 
                 $events[] = [
                     'key' => $key,
                     'distance' => $event['distance'],
                     'heats' => max($event['heat_count'], (int) ceil($swimmers / $lanes)),
-                    'duration' => ($event['times'] ?? []) === []
-                        ? ScheduleEstimator::durationSeconds($event['distance'], max($event['heat_count'], (int) ceil($swimmers / $lanes)))
-                        : ScheduleEstimator::durationFromTimes($event['distance'], $event['times'], $lanes),
+                    'duration' => (int) round(self::modelSeconds($event, $lanes) * ($factor['factor'] ?? 1.0)),
+                    'measured' => ($factor['factor'] ?? null) === null ? 0 : $factor['samples'],
                     'done' => $event['result_count'] > 0,
                     'finished_at' => $finished[$key] ?? null,
                 ];
@@ -244,6 +257,24 @@ final class LiveSchedule
         }
 
         return self::compute($input, $now);
+    }
+
+    /**
+     * 計算式での、種目 1 件の所要時間（秒）。実測と比べるときも同じ式を使う。
+     *
+     * @param array{distance: int, heat_count: int, entry_count: int, result_count: int, times?: list<array{heat: ?int, cs: ?int}>} $event
+     */
+    public static function modelSeconds(array $event, int $lanes = 8): int
+    {
+        $lanes = max(1, $lanes);
+
+        if (($event['times'] ?? []) !== []) {
+            return ScheduleEstimator::durationFromTimes($event['distance'], $event['times'], $lanes);
+        }
+
+        $swimmers = max($event['entry_count'], $event['result_count']);
+
+        return ScheduleEstimator::durationSeconds($event['distance'], max($event['heat_count'], (int) ceil($swimmers / $lanes)));
     }
 
     /** 種目のキー（DB の行と速報の記録をつなぐ）。 */

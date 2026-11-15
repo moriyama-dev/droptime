@@ -6,6 +6,7 @@ namespace DropTime\Fetch;
 
 use DropTime\Db\Database;
 use DropTime\Domain\LiveSchedule;
+use DropTime\Domain\MeasuredTimings;
 use DropTime\Import\HtmlTextExtractor;
 use DropTime\Parser\HyTek\HyTekLine;
 use DropTime\Parser\HyTek\HyTekResultsParser;
@@ -34,9 +35,13 @@ final class LiveProgress
     /** 1 回の確認で読む結果のページの上限。 */
     private const MAX_RESULT_PAGES = 6;
 
+    /** 1 回の確認で、セッションごとに「次に結果が載りそうな種目」を何件まで見るか。 */
+    private const FRONTIER = 2;
+
     public function __construct(
         private readonly Database $db,
         private readonly PortalClient $client,
+        private readonly int $lanes = 8,
     ) {
     }
 
@@ -67,7 +72,7 @@ final class LiveProgress
      * 1 大会ぶん確かめる。
      *
      * @param array{id: int, name: string, source_file: string} $meet
-     * @return array{event: ?string, round: ?string, finished_at: ?string, note: string, results?: int}
+     * @return array{event: ?string, round: ?string, finished_at: ?string, note: string, results?: int, stamped?: int, timings?: int}
      */
     public function check(array $meet): array
     {
@@ -97,9 +102,168 @@ final class LiveProgress
         }
 
         $this->record($meet['id'], $parsed['event'], $parsed['round'], $parsed['finished_at']);
+        $stamped = 0;
+        $timings = 0;
+
+        try {
+            // 実測の蓄えは、カウントダウンの補正と結果の取り込みを止めない。
+            $stamped = $this->stampFrontier($meet['id'], $folder, $index['body']);
+            $timings = $this->saveTimings($meet['id']);
+        } catch (Throwable) {
+            // 次の回でやり直す。
+        }
+
         $results = $this->collectResults($meet['id'], $folder, $index['body']);
 
-        return $parsed + ['note' => '記録しました', 'results' => $results];
+        return $parsed + ['note' => '記録しました', 'results' => $results, 'stamped' => $stamped, 'timings' => $timings];
+    }
+
+    /**
+     * 今日のセッションごとに、次に結果が載りそうな種目のページを見て、載っていれば終わった時刻を残す。
+     *
+     * 「最後に終わった種目」は大会全体で 1 つしか分からないので、プールが並行する大会や、
+     * 結果がまとめて載る大会では、時刻の残らない種目が出る。所要時間の実測（event_timings）には
+     * 続けて泳いだ 2 種目の時刻が要るので、ここで拾う。
+     *
+     * まず更新日時だけを見て（本文は取らない）、今日のセッションの開始より後に更新されていたときだけ本文を読み、
+     * 結果のページであること・種目番号が合うことを確かめてから、印字の時刻を残す。
+     * 見るのは、時刻が残っている最後の種目の次から FRONTIER 件まで。
+     *
+     * @return int 新しく時刻を残した種目の数
+     */
+    public function stampFrontier(int $meetId, string $folder, string $indexHtml): int
+    {
+        $zone = Clock::localZone();
+        $now = Clock::now()->setTimezone($zone);
+        $today = $now->format('Y-m-d');
+        $known = [];
+
+        foreach ((new MeetRepository($this->db))->liveStatusOf($meetId) as $row) {
+            $known[LiveSchedule::key($row['event_number'], $row['round'])] = true;
+        }
+
+        $stamped = 0;
+
+        foreach (MeetProgram::parse($indexHtml) as $session) {
+            if ($session['date'] !== $today || $session['start_time'] === null) {
+                continue;
+            }
+
+            $start = $session['date'] . ' ' . $session['start_time'] . ':00';
+
+            if ($now->format('Y-m-d H:i:s') < $start) {
+                continue;
+            }
+
+            $events = $session['events'];
+            $from = 0;
+
+            foreach ($events as $index => $event) {
+                if (isset($known[LiveSchedule::key($event['number'], $event['round'])])) {
+                    $from = $index + 1;
+                }
+            }
+
+            foreach (array_slice($events, $from, self::FRONTIER) as $event) {
+                $modified = $this->client->lastModified($folder . $event['page']);
+                $modifiedAt = $modified === null ? false : strtotime($modified);
+
+                if ($modifiedAt === false || $now->setTimestamp($modifiedAt)->format('Y-m-d H:i:s') < $start) {
+                    break; // まだ載っていない。その先の種目も載っていないとみなす
+                }
+
+                $page = $this->client->get($folder . $event['page']);
+
+                if ($page['status'] !== 200 || !PortalPages::isResultsPage($page['body'])) {
+                    break;
+                }
+
+                $parsed = self::parseLastEvent($page['body']);
+
+                if ($parsed === null || $parsed['event'] !== $event['number'] || substr($parsed['finished_at'], 0, 10) !== $today
+                    || $parsed['finished_at'] < $start) {
+                    break;
+                }
+
+                $this->record($meetId, $event['number'], $event['round'], $parsed['finished_at']);
+                $stamped++;
+            }
+        }
+
+        return $stamped;
+    }
+
+    /**
+     * 終わった時刻から、種目の所要時間の実測を作って event_timings に置く（MeasuredTimings）。
+     * 次にこの会場で同じ種目・同じ距離を泳ぐときの見積もりに使う。
+     *
+     * @param bool $allDays false なら今日のセッションだけ（毎回の確認用）。true なら大会の全セッション
+     * @return int 置いた実測の件数
+     */
+    public function saveTimings(int $meetId, bool $allDays = false): int
+    {
+        $meets = new MeetRepository($this->db);
+        $today = Clock::now()->setTimezone(Clock::localZone())->format('Y-m-d');
+        $finished = [];
+
+        foreach ($meets->liveStatusOf($meetId) as $row) {
+            $finished[LiveSchedule::key($row['event_number'], $row['round'])] = $row['finished_at'];
+        }
+
+        $saved = 0;
+
+        foreach ($meets->sessionsOf($meetId) as $session) {
+            if ($session['date'] === null || (!$allDays && $session['date'] !== $today)) {
+                continue;
+            }
+
+            $byKey = [];
+            $order = [];
+
+            foreach ($session['events'] as $event) {
+                $key = LiveSchedule::key($event['event_number'], $event['round']);
+                $byKey[$key] = $event;
+                $order[] = ['key' => $key, 'finished_at' => $finished[$key] ?? null];
+            }
+
+            foreach (MeasuredTimings::fromSession($session['date'], $order) as $key => $measured) {
+                $event = $byKey[$key];
+                $swimmers = max($event['entry_count'], $event['result_count']);
+
+                if ($swimmers === 0) {
+                    continue; // 人数が分からないと、計算式と比べられない
+                }
+
+                $this->db->execute(
+                    'INSERT INTO event_timings (meet_id, event_number, round, session_date, stroke, distance, is_relay, swimmers,'
+                    . ' actual_seconds, model_seconds, lanes, finished_at, updated_at)'
+                    . ' VALUES (:meet_id, :number, :round, :date, :stroke, :distance, :relay, :swimmers,'
+                    . ' :actual, :model, :lanes, :finished_at, :updated_at)'
+                    . ' ON DUPLICATE KEY UPDATE session_date = VALUES(session_date), stroke = VALUES(stroke), distance = VALUES(distance),'
+                    . ' is_relay = VALUES(is_relay), swimmers = VALUES(swimmers), actual_seconds = VALUES(actual_seconds),'
+                    . ' model_seconds = VALUES(model_seconds), lanes = VALUES(lanes), finished_at = VALUES(finished_at),'
+                    . ' updated_at = VALUES(updated_at)',
+                    [
+                        'meet_id' => $meetId,
+                        'number' => $event['event_number'],
+                        'round' => $event['round'],
+                        'date' => $session['date'],
+                        'stroke' => $event['stroke'],
+                        'distance' => $event['distance'],
+                        'relay' => $event['is_relay'] ? 1 : 0,
+                        'swimmers' => $swimmers,
+                        'actual' => $measured['actual_seconds'],
+                        'model' => LiveSchedule::modelSeconds($event, $this->lanes),
+                        'lanes' => $this->lanes,
+                        'finished_at' => $measured['finished_at'],
+                        'updated_at' => Clock::utcNow(),
+                    ]
+                );
+                $saved++;
+            }
+        }
+
+        return $saved;
     }
 
     /**

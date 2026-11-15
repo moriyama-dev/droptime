@@ -62,6 +62,10 @@ return [
     'home.cd_at' => '大約 %s',
     'home.cd_next' => '下一個項目',
     'home.cd_events_before' => '前面仲有 %d 個項目',
+    'home.basis_measured' => '根據呢個場地 %d 次實測預測',
+    'home.basis_formula' => '未有實測・用計算預測',
+    'home.basis_note' => '預計時間係根據以前喺呢個場地、同一個泳式同距離實際用咗幾耐（實測）嚟預測。實測仲未夠嘅項目會顯示「未有實測・用計算預測」，用報名時間計算。每次比賽都會儲存實測，所以會越嚟越準。',
+    'home.basis_no_venue' => '呢個比賽未登記場地，用唔到以前嘅實測。預計時間係用報名時間計算。',
 
     'meets.title' => '比賽紀錄',
     'meets.badge_results' => '有成績',
