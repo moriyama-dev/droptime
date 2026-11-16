@@ -93,8 +93,12 @@ final class TestNotice
         }
 
         $php = Config::instance()->string('fetch.php_binary', PHP_BINDIR . '/php');
-        $command = sprintf(
-            'cd %s && nohup %s %s --subscription %d --kind %s --delay %d > /dev/null 2>&1 < /dev/null &',
+
+        // Web サーバーから受け継いだ接続（3 番以降の入出力）を閉じてから起動する。
+        // 開いたままだと、待っている間じゅう Web サーバーがこのリクエストの終わりを待ってしまう。
+        $inner = sprintf(
+            'for fd in /proc/$$/fd/*; do n=${fd##*/}; if [ "$n" -gt 2 ] 2>/dev/null; then eval "exec $n>&-" 2>/dev/null; fi; done;'
+            . ' cd %s && exec nohup %s %s --subscription %d --kind %s --delay %d',
             escapeshellarg(APP_ROOT),
             escapeshellarg($php),
             escapeshellarg(APP_ROOT . '/bin/push-test.php'),
@@ -102,6 +106,7 @@ final class TestNotice
             escapeshellarg(in_array($kind, self::KINDS, true) ? $kind : 'test'),
             max(0, min(900, $delaySeconds))
         );
+        $command = 'bash -c ' . escapeshellarg($inner) . ' > /dev/null 2>&1 < /dev/null &';
 
         exec($command, $output, $code);
 
