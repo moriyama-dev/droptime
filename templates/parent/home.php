@@ -161,7 +161,6 @@ $countdown = static function (array $live) use ($t): string {
 <nav class="footer-nav">
     <a class="footer-nav__link" href="<?= $view->url('sources') ?>"><?= $t('src.title') ?></a>
     <?= $view->partial('_feedback') ?>
-    <?php if ($isAdmin) : ?>
-        <a class="footer-nav__link" href="<?= $view->url('admin.home') ?>"><?= $t('common.admin_link') ?></a>
-    <?php endif; ?>
+    <?php // いつも出す。ホーム画面に追加したアプリにはアドレス欄が無く、ここからしか管理画面に入れないため（入るには管理者の合言葉が要る）。 ?>
+    <a class="footer-nav__link" href="<?= $view->url('admin.home') ?>"><?= $t('common.admin_link') ?></a>
 </nav>
