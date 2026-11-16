@@ -21,7 +21,7 @@ use DropTime\Db\Database;
 use DropTime\Push\TestNotice;
 use DropTime\Support\Config;
 
-$options = getopt('', ['subscription:', 'kind::', 'delay::']);
+$options = getopt('', ['subscription:', 'kind:', 'delay:']);
 $subscriptionId = (int) ($options['subscription'] ?? 0);
 $kind = (string) ($options['kind'] ?? 'test');
 $delay = max(0, min(900, (int) ($options['delay'] ?? 0)));
