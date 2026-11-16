@@ -13,6 +13,7 @@ use DropTime\Support\View;
 /** @var string $vapidPublic */
 /** @var bool $hasMeets */
 /** @var bool $isAdmin */
+/** @var ?string $testNow 管理者のテスト時刻（設定しているときだけ） */
 /** @var DropTime\Support\View $view */
 $e = static fn (mixed $v): string => View::e($v);
 $t = static fn (string $k, mixed ...$a): string => View::e(Lang::t($k, ...$a));
@@ -28,6 +29,16 @@ $countdown = static function (array $live) use ($t): string {
     };
 };
 ?>
+<?php if (($testNow ?? null) !== null) : ?>
+    <?php // 管理者のテスト時刻で表示している印。本当の時刻と取り違えないよう、いちばん上に出す。 ?>
+    <form class="alert alert--info test-clock" method="post" action="<?= $view->url('admin.tools.clock') ?>">
+        <?= DropTime\Http\Csrf::field() ?>
+        <input type="hidden" name="back" value="home">
+        <span><?= $t('tools.clock_active', substr((string) $testNow, 0, 16)) ?></span>
+        <button type="submit" class="button button--quiet button--small" name="clear" value="1"><?= $t('tools.clock_clear') ?></button>
+        <a class="button button--quiet button--small" href="<?= $view->url('admin.tools') ?>"><?= $t('tools.title') ?></a>
+    </form>
+<?php endif; ?>
 <?php if ($todayWindows !== []) : ?>
     <?= $view->partial('parent/_today-window', ['todayWindows' => $todayWindows]) ?>
 <?php endif; ?>

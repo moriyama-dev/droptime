@@ -2917,3 +2917,83 @@ button.topbar__switch {
     font-size: 0.85rem;
     font-weight: 400;
 }
+
+/* 管理者用のテスト（/admin/tools） */
+.diag {
+    margin: 12px 0;
+    display: grid;
+    gap: 6px;
+}
+
+.diag__row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 16px;
+    padding: 8px 12px;
+    border: 1px solid var(--dt-border, rgba(127, 127, 127, 0.3));
+    border-left-width: 4px;
+    border-radius: 8px;
+}
+
+.diag__row--ok {
+    border-left-color: var(--dt-accent);
+}
+
+.diag__row--ng {
+    border-left-color: var(--dt-danger, #e5484d);
+}
+
+.diag__label {
+    color: var(--dt-text-muted);
+    font-size: 0.85rem;
+}
+
+.diag__value {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.diag__verdict {
+    margin: 12px 0;
+    font-weight: 600;
+}
+
+.diag__verdict--ng {
+    color: var(--dt-danger, #e5484d);
+}
+
+.diag__verdict--ok {
+    color: var(--dt-accent);
+}
+
+.due {
+    margin: 10px 0;
+    padding: 10px 12px;
+    border: 1px solid var(--dt-border, rgba(127, 127, 127, 0.3));
+    border-radius: 8px;
+}
+
+.due__to {
+    margin: 0 0 4px;
+    color: var(--dt-text-muted);
+    font-size: 0.8rem;
+}
+
+.due__title {
+    margin: 0;
+    font-weight: 700;
+}
+
+.due__body {
+    margin: 2px 0 0;
+    font-size: 0.9rem;
+}
+
+.test-clock {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}

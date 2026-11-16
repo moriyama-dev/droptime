@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use DropTime\Http\Access;
 use DropTime\Http\Controllers\AdminController;
+use DropTime\Http\Controllers\AdminToolsController;
 use DropTime\Http\Controllers\AuthController;
 use DropTime\Http\Controllers\FavoritesController;
 use DropTime\Http\Controllers\HomeController;
@@ -78,4 +79,10 @@ return [
     ['POST', '/admin/merges/candidates/{candidate}/merge', [AdminController::class, 'mergeCommit'], Access::ADMIN, 'admin.merges.commit'],
     ['POST', '/admin/merges/candidates/{candidate}/dismiss', [AdminController::class, 'mergeDismiss'], Access::ADMIN, 'admin.merges.dismiss'],
     ['POST', '/admin/merges/{merge}/undo', [AdminController::class, 'mergeUndo'], Access::ADMIN, 'admin.merges.undo'],
+
+    // 管理者用のテスト（通知の診断とテスト送信・テスト時刻・稼働の確認）。
+    ['GET', '/admin/tools', [AdminToolsController::class, 'index'], Access::ADMIN, 'admin.tools'],
+    ['POST', '/admin/tools/push', [AdminToolsController::class, 'push'], Access::ADMIN, 'admin.tools.push'],
+    ['POST', '/admin/tools/push/delete', [AdminToolsController::class, 'pushDelete'], Access::ADMIN, 'admin.tools.push.delete'],
+    ['POST', '/admin/tools/clock', [AdminToolsController::class, 'clock'], Access::ADMIN, 'admin.tools.clock'],
 ];

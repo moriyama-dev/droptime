@@ -37,6 +37,10 @@ Config::load(APP_ROOT . '/config/config.php');
 $config = Config::instance();
 date_default_timezone_set($config->string('app.timezone', 'America/Toronto'));
 
+// 定期処理が呼ばれた印（管理画面の「テスト」で、動いているかを見る）。
+@mkdir(APP_ROOT . '/var/logs', 0775, true);
+@touch(APP_ROOT . '/var/logs/live-progress.last');
+
 $hour = (int) date('G');
 
 if (!$force && ($hour < 6 || $hour >= 23)) {

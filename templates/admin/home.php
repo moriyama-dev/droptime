@@ -121,5 +121,6 @@ php bin/capture-source.php --swimmer-pages "Doe, Jane"</pre>
 
 <nav class="footer-nav">
     <a class="footer-nav__link" href="<?= $view->url('admin.merges') ?>"><?= $t('admin.merges_link') ?></a>
+    <a class="footer-nav__link" href="<?= $view->url('admin.tools') ?>"><?= $t('tools.title') ?></a>
     <a class="footer-nav__link" href="<?= $view->url('home') ?>"><?= $t('admin.to_parent') ?></a>
 </nav>

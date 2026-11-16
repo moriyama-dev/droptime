@@ -9,6 +9,7 @@ use DropTime\Http\Controller;
 use DropTime\Http\ProfileSession;
 use DropTime\Http\Request;
 use DropTime\Http\Response;
+use DropTime\Http\TestClock;
 use DropTime\Push\WebPush;
 use DropTime\Repository\FavoriteRepository;
 use DropTime\Repository\RacePlanRepository;
@@ -40,6 +41,13 @@ final class HomeController extends Controller
 
         $today = Clock::localToday();
         $now = Clock::now()->setTimezone(Clock::localZone())->format('Y-m-d H:i:s');
+        // 管理者のテスト時刻（/admin/tools）。この端末のこの画面の表示だけを、その時刻として計算する。
+        $testNow = TestClock::now();
+
+        if ($testNow !== null) {
+            $now = $testNow;
+            $today = substr($testNow, 0, 10);
+        }
         $planner = new RacePlanRepository($this->context->db, $this->context->config->int('schedule.lanes', 8));
         $planned = $planner->plan($favorites->upcomingEntries($profileId, $today), $today, $now);
         $todayWindows = RacePlanRepository::todayWindows($planned);
@@ -52,6 +60,7 @@ final class HomeController extends Controller
             'todayWindows' => $todayWindows,
             'hasMeets' => true,
             'vapidPublic' => $this->vapidPublic(),
+            'testNow' => $testNow,
             // 大会の当日は、開いている間 1 分おきに表示を新しくする（カウントダウンと速報の補正）。
             'refreshSeconds' => $meetDay ? 60 : 0,
         ]);

@@ -362,7 +362,185 @@
         });
     }
 
+    /*
+     * 管理者用のテスト画面（/admin/tools）の「この端末の通知の診断」。
+     * 通知が届く条件を上から順に確かめ、最初に欠けているものを原因として示す。
+     * サーバー側の登録は、画面の一覧（購読の送り先の SHA-256）と突き合わせる。
+     */
+    function setupDiag(box) {
+        var verdict = box.querySelector('[data-diag-verdict]');
+        var message = box.querySelector('[data-diag-message]');
+        var localButton = box.querySelector('[data-diag-local]');
+        var hasSw = 'serviceWorker' in navigator && window.isSecureContext && swReady;
+        var hasPush = 'PushManager' in window && 'Notification' in window;
+        var standalone = isStandalone();
+
+        function text(name) {
+            return box.getAttribute('data-text-' + name) || '';
+        }
+
+        function set(item, value, ok) {
+            var row = box.querySelector('[data-diag="' + item + '"]');
+
+            if (!row) {
+                return;
+            }
+
+            row.querySelector('[data-value]').textContent = value;
+            row.className = 'diag__row' + (ok === true ? ' diag__row--ok' : (ok === false ? ' diag__row--ng' : ''));
+        }
+
+        function finish(code) {
+            verdict.textContent = text('verdict_' + code);
+            verdict.className = 'diag__verdict diag__verdict--' + (code === 'ok' ? 'ok' : 'ng');
+        }
+
+        function sha256Hex(value) {
+            return window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)).then(function (buffer) {
+                return Array.prototype.map.call(new Uint8Array(buffer), function (byte) {
+                    return ('0' + byte.toString(16)).slice(-2);
+                }).join('');
+            });
+        }
+
+        function nothing(code) {
+            set('subscription', text('sub_none'), false);
+            set('server', text('server_none'), false);
+            finish(code);
+        }
+
+        var permission = 'Notification' in window ? Notification.permission : 'unsupported';
+
+        set('https', window.isSecureContext ? text('yes') : text('no'), Boolean(window.isSecureContext));
+        set('push', hasPush ? text('yes') : text('no'), hasPush);
+        set('mode', standalone ? text('mode_app') : text('mode_tab'), isIos() ? standalone : null);
+        set('permission', permission === 'granted' ? text('perm_granted') : (permission === 'denied' ? text('perm_denied') : (permission === 'default' ? text('perm_default') : text('no'))),
+            permission === 'granted' ? true : (permission === 'default' ? null : false));
+
+        if (!hasSw || !hasPush) {
+            set('sw', hasSw ? text('yes') : text('no'), Boolean(hasSw));
+            nothing(isIos() && !standalone ? 'ios_tab' : 'unsupported');
+        } else {
+            set('sw', text('checking'), null);
+
+            swReady.then(function (registration) {
+                if (!registration) {
+                    set('sw', text('no'), false);
+                    nothing('unsupported');
+
+                    return null;
+                }
+
+                set('sw', text('yes'), true);
+
+                return registration.pushManager.getSubscription().then(function (subscription) {
+                    if (!subscription) {
+                        nothing(permission === 'denied' ? 'denied' : 'off');
+
+                        return null;
+                    }
+
+                    var host = '';
+
+                    try {
+                        host = new URL(subscription.endpoint).hostname;
+                    } catch (error) {
+                        host = '';
+                    }
+
+                    set('subscription', text('yes') + (host ? '（' + host + '）' : ''), true);
+
+                    return sha256Hex(subscription.endpoint).then(function (hash) {
+                        var row = document.querySelector('[data-sub-row="' + hash + '"]');
+                        var option = document.querySelector('option[data-sub-hash="' + hash + '"]');
+
+                        if (!row) {
+                            set('server', text('server_none'), false);
+                            finish('not_saved');
+
+                            return;
+                        }
+
+                        var badge = row.querySelector('[data-this-device]');
+
+                        if (badge) {
+                            badge.textContent = text('this_device');
+                            badge.hidden = false;
+                        }
+
+                        if (option) {
+                            option.selected = true;
+                            option.textContent = option.textContent.trim() + '（' + text('this_device') + '）';
+                        }
+
+                        set('server', text('server_found').replace('%s', option ? option.value : ''), true);
+                        finish(permission === 'granted' ? 'ok' : 'denied');
+                    });
+                });
+            }).catch(function () {
+                set('sw', text('no'), false);
+                nothing('unsupported');
+            });
+        }
+
+        if (localButton) {
+            localButton.addEventListener('click', function () {
+                if (!hasSw || !('Notification' in window)) {
+                    message.textContent = text('local_failed');
+
+                    return;
+                }
+
+                if (Notification.permission !== 'granted') {
+                    message.textContent = text('local_blocked');
+
+                    return;
+                }
+
+                swReady.then(function (registration) {
+                    return registration.showNotification('DropTime', {
+                        body: localButton.getAttribute('data-body') || '',
+                        tag: 'local-' + Date.now(),
+                        icon: registration.scope + 'assets/icons/icon-192.png'
+                    });
+                }).then(function () {
+                    message.textContent = text('local_shown');
+                }).catch(function () {
+                    message.textContent = text('local_failed');
+                });
+            });
+        }
+
+        // この画面で通知をオン・オフしたら、一覧（サーバー側の登録）を読み直す。
+        var pushBox = document.querySelector('[data-push]');
+        var state = pushBox ? pushBox.querySelector('[data-push-state]') : null;
+        var touched = false;
+
+        if (pushBox && state && 'MutationObserver' in window) {
+            pushBox.addEventListener('click', function (event) {
+                if (event.target.closest && event.target.closest('[data-push-on], [data-push-off]')) {
+                    touched = true;
+                }
+            });
+
+            new MutationObserver(function () {
+                if (touched && /app-setup__state--(on|off)\b/.test(state.className)) {
+                    touched = false;
+                    window.setTimeout(function () {
+                        window.location.reload();
+                    }, 1500);
+                }
+            }).observe(state, { attributes: true, attributeFilter: ['class'] });
+        }
+    }
+
     function start() {
+        var diag = document.querySelector('[data-push-diag]');
+
+        if (diag) {
+            setupDiag(diag);
+        }
+
         var setup = document.querySelector('[data-app-setup]');
 
         if (!setup) {
